@@ -1,0 +1,30 @@
+﻿<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Messenger</title>
+    <link rel="stylesheet" href="~/css/pages/home/main.css" asp-append-version="true" />
+    <link rel="icon" href="~/assets/icons/facebook.svg" />
+</head>
+<body>
+    @await Html.PartialAsync("Partials/_Topbar")
+    @RenderBody()
+    <div class="modal" id="form_modal-main"></div>
+
+    <div id="appModal" class="app_modal" hidden aria-hidden="true">
+        <div class="app_modal__overlay" data-modal-close="overlay"></div>
+        <div class="app_modal__panel" role="dialog" aria-modal="true" aria-label="Popup">
+            <!-- chỗ inject content -->
+            <div class="app_modal__content" id="appModalContent"></div>
+        </div>
+    </div>
+
+</body>
+<script type="module" src="~/js/pages/chat/main.js" asp-append-version="true"></script>
+<script type="module" src="~/js/pages/chat/handle_choice_item_threads.js" asp-append-version="true"></script>
+<script type="module" src="~/js/pages/chat/chat_composer.js" asp-append-version="true"></script>
+<script type="module" src="~/js/pages/chat/chat_realtime.js" asp-append-version="true"></script>
+<script type="module" src="~/js/pages/chat/mobile_sidebar.js" asp-append-version="true"></script>
+<script type="module" src="~/js/pages/chat/video-call-ui.js" asp-append-version="true"></script>
+</html>

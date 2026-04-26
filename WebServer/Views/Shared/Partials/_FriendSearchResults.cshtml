@@ -1,0 +1,21 @@
+﻿@model WebServer.Dtos.UserDto
+
+@if (Model == null)
+{
+    <div class="form_friends__empty">Không có kết quả.</div>
+}
+else
+{
+    <div class="form_friends__list">
+            <div class="form_friends__item" data-user-id="@Model.AccountId">
+                <div class="form_friends__avatar">
+                    <img alt=""
+                         src="@(string.IsNullOrWhiteSpace(Model.PhotoPath) ? "https://via.placeholder.com/40" : Model.PhotoPath)" />
+                </div>
+                <div class="form_friends__meta">
+                    <p class="form_friends__name">@Model.AccountName</p>
+                    <p class="form_friends__sub">@Model.Email</p>
+                </div>
+            </div>
+    </div>
+}

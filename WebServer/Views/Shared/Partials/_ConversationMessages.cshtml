@@ -1,0 +1,136 @@
+﻿@using WebServer.ViewModels.WebServer.ViewModels
+@model ConversationMessagesVm
+
+@functions {
+    static string TooltipTime(DateTime dt)
+        => dt.ToString("HH:mm");
+
+    static string DividerLabel(DateTime dt, DateTime now)
+    {
+        var dayDiff = (now.Date - dt.Date).Days;
+        if (dayDiff == 0) return dt.ToString("HH:mm");
+        if (dayDiff == 1) return "Hôm qua, " + dt.ToString("HH:mm");
+        if (dayDiff < 7) return $"{dayDiff} ngày trước, {dt:HH:mm}";
+        return dt.ToString("dd/MM/yyyy, HH:mm");
+    }
+
+    static string SpacingClass(DateTime? prevTime, DateTime curTime)
+    {
+        if (prevTime == null) return "";
+        var diff = curTime - prevTime.Value;
+        if (diff.TotalSeconds < 60) return "spacing-tight";
+        return "spacing-spaced";
+    }
+
+    static bool NeedDivider(DateTime? prevTime, DateTime curTime)
+    {
+        if (prevTime == null) return false;
+        return (curTime - prevTime.Value).TotalMinutes > 15;
+    }
+}
+
+<section id="messageScroller"
+         class="scroller"
+         data-conversation-id="@Model.ConversationId"
+         data-me-id="@Model.MeAccountId">
+
+    @if (Model.Messages == null || Model.Messages.Count == 0)
+    {
+        <div class="threads-empty">Chưa có tin nhắn.</div>
+    }
+    else
+    {
+        DateTime? prevTime = null;
+        var now = DateTime.Now;
+
+        foreach (var m in Model.Messages)
+        {
+            var isMe = m.Sender?.AccountId == Model.MeAccountId;
+            var sideClass = isMe ? "right" : "left";
+
+            if (NeedDivider(prevTime, m.CreatedAt))
+            {
+                <div class="message-timestamp-divider">
+                    @DividerLabel(m.CreatedAt, now)
+                </div>
+            }
+
+            var spacing = SpacingClass(prevTime, m.CreatedAt);
+
+            <div class="bubble-group @spacing">
+
+                @if (string.Equals(m.MessageType, "image", StringComparison.OrdinalIgnoreCase))
+                {
+                    <div class="image-wrapper @sideClass">
+                        <img src="@m.Content"
+                             alt="image"
+                             class="chat-image-modern" />
+
+                        <div class="image-time">@TooltipTime(m.CreatedAt)</div>
+                    </div>
+                }
+                else if (string.Equals(m.MessageType, "audio", StringComparison.OrdinalIgnoreCase))
+                {
+                    <div class="msg @sideClass">
+                        <audio class="chat-audio" controls preload="metadata">
+                            <source src="@m.Content" type="audio/webm" />
+                            Trình duyệt của bạn không hỗ trợ audio.
+                        </audio>
+
+                        <div class="audio-time">@TooltipTime(m.CreatedAt)</div>
+                    </div>
+                }
+                else
+                {
+                    <div class="msg @sideClass">
+                        @m.Content
+                        <div class="message-time-tooltip">
+                            @TooltipTime(m.CreatedAt)
+                        </div>
+                    </div>
+                }
+
+            </div>
+
+            prevTime = m.CreatedAt;
+        }
+    }
+</section>
+
+<style>
+    .audio-wrapper {
+        display: flex;
+        align-items: flex-end;
+        gap: 8px;
+        margin: 4px 0;
+        max-width: 75%;
+    }
+
+        .audio-wrapper.left {
+            justify-content: flex-start;
+        }
+
+        .audio-wrapper.right {
+            justify-content: flex-end;
+            margin-left: auto;
+        }
+
+    .chat-audio {
+        width: 260px;
+        max-width: 100%;
+        height: 38px;
+        border-radius: 16px;
+        background: #f1f1f1;
+        padding: 6px 10px;
+    }
+
+    .audio-wrapper.right .chat-audio {
+        background: #dbeafe; 
+    }
+
+    .audio-time {
+        font-size: 12px;
+        opacity: 0.7;
+        white-space: nowrap;
+    }
+</style>

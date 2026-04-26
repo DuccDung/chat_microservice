@@ -1,0 +1,77 @@
+is_global = true
+build_property.TargetFramework = net9.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = WebServer
+build_property.RootNamespace = WebServer
+build_property.ProjectDir = D:\laptrinhweb\code_outsrc\SystemChatBoxRealtime\microservice\SystemChatBoxRealtime\WebServer\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.RazorLangVersion = 9.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = D:\laptrinhweb\code_outsrc\SystemChatBoxRealtime\microservice\SystemChatBoxRealtime\WebServer
+build_property._RazorSourceGeneratorDebug = 
+build_property.EffectiveAnalysisLevelStyle = 9.0
+build_property.EnableCodeStyleSeverity = 
+
+[D:/laptrinhweb/code_outsrc/SystemChatBoxRealtime/microservice/SystemChatBoxRealtime/WebServer/Views/Auth/Login.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXV0aFxMb2dpbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/laptrinhweb/code_outsrc/SystemChatBoxRealtime/microservice/SystemChatBoxRealtime/WebServer/Views/Auth/Register.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXV0aFxSZWdpc3Rlci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/laptrinhweb/code_outsrc/SystemChatBoxRealtime/microservice/SystemChatBoxRealtime/WebServer/Views/Home/Main.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxNYWluLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/laptrinhweb/code_outsrc/SystemChatBoxRealtime/microservice/SystemChatBoxRealtime/WebServer/Views/Shared/Partials/_CallPopup.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXFBhcnRpYWxzXF9DYWxsUG9wdXAuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/laptrinhweb/code_outsrc/SystemChatBoxRealtime/microservice/SystemChatBoxRealtime/WebServer/Views/Shared/Partials/_ChatThreads.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXFBhcnRpYWxzXF9DaGF0VGhyZWFkcy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/laptrinhweb/code_outsrc/SystemChatBoxRealtime/microservice/SystemChatBoxRealtime/WebServer/Views/Shared/Partials/_ConversationMessages.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXFBhcnRpYWxzXF9Db252ZXJzYXRpb25NZXNzYWdlcy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/laptrinhweb/code_outsrc/SystemChatBoxRealtime/microservice/SystemChatBoxRealtime/WebServer/Views/Shared/Partials/_FormFriends.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXFBhcnRpYWxzXF9Gb3JtRnJpZW5kcy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/laptrinhweb/code_outsrc/SystemChatBoxRealtime/microservice/SystemChatBoxRealtime/WebServer/Views/Shared/Partials/_FormPersonal.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXFBhcnRpYWxzXF9Gb3JtUGVyc29uYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/laptrinhweb/code_outsrc/SystemChatBoxRealtime/microservice/SystemChatBoxRealtime/WebServer/Views/Shared/Partials/_FriendSearchResults.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXFBhcnRpYWxzXF9GcmllbmRTZWFyY2hSZXN1bHRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/laptrinhweb/code_outsrc/SystemChatBoxRealtime/microservice/SystemChatBoxRealtime/WebServer/Views/Shared/Partials/_IncomingCallPopup.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXFBhcnRpYWxzXF9JbmNvbWluZ0NhbGxQb3B1cC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/laptrinhweb/code_outsrc/SystemChatBoxRealtime/microservice/SystemChatBoxRealtime/WebServer/Views/Shared/Partials/_Topbar.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXFBhcnRpYWxzXF9Ub3BiYXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/laptrinhweb/code_outsrc/SystemChatBoxRealtime/microservice/SystemChatBoxRealtime/WebServer/Views/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/laptrinhweb/code_outsrc/SystemChatBoxRealtime/microservice/SystemChatBoxRealtime/WebServer/Views/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/laptrinhweb/code_outsrc/SystemChatBoxRealtime/microservice/SystemChatBoxRealtime/WebServer/Views/Shared/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = b-goiz0xmca9

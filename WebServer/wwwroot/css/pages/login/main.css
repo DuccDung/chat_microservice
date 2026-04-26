@@ -1,0 +1,321 @@
+﻿:root {
+    --bg: #e9ebee;
+    --card: #fff;
+    --text: #1c1e21;
+    --muted: #606770;
+    --brand: #2b6fe8;
+    --btn: #2b6fe8;
+    --btn-hover: #225ad1;
+    --error: #e41e3f;
+    --input-border: #dddfe2;
+    --shadow: 0 2px 12px rgba(0,0,0,.08);
+    --radius: 10px;
+    --card-w: 396px;
+}
+
+/* Ẩn icon show password mặc định của trình duyệt (Edge/IE) */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+    display: none;
+}
+
+/* Một số bản Chromium mới */
+input[type="password"]::-webkit-credentials-auto-fill-button {
+    visibility: hidden;
+    pointer-events: none;
+    position: absolute;
+    right: 0;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
+    background: var(--bg);
+    color: var(--text);
+}
+
+.wrap {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.main {
+    flex: 1 0 auto;
+    display: grid;
+    place-items: center;
+    padding: 40px 16px;
+}
+
+.brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    user-select: none;
+}
+
+.brand-title {
+    font-size: 44px;
+    font-weight: 800;
+    letter-spacing: .2px;
+    color: var(--brand);
+    text-transform: lowercase;
+}
+
+.card {
+    width: var(--card-w);
+    max-width: 100%;
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 16px;
+}
+
+    .card h2 {
+        text-align: center;
+        font-size: 18px;
+        margin: 8px 0 16px;
+        font-weight: 700;
+    }
+
+form {
+    margin: 0;
+}
+
+.field {
+    position: relative;
+    margin-bottom: 12px;
+}
+
+    .field input {
+        width: 100%;
+        padding: 14px 44px 14px 12px;
+        border: 1px solid var(--input-border);
+        border-radius: 8px;
+        font-size: 15px;
+        outline: none;
+        background: #fff;
+        transition: border-color .2s, box-shadow .2s;
+    }
+
+        .field input:focus {
+            border-color: var(--brand);
+            box-shadow: 0 0 0 3px rgba(43,111,232,.15);
+        }
+
+.icon-inline,
+.icon-btn {
+    position: absolute;
+    right: 12px;
+    top: 12px;
+}
+
+/* error */
+.field.error input {
+    border-color: var(--error);
+    box-shadow: 0 0 0 1px var(--error) inset;
+}
+
+.icon-alert {
+    width: 20px;
+    height: 20px;
+    color: var(--error);
+    display: none;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.field.error .icon-alert {
+    display: block;
+}
+
+.error-text {
+    display: none;
+    color: var(--error);
+    font-size: 12.5px;
+    line-height: 1.45;
+    margin: 6px 4px 0;
+}
+
+    .error-text.show {
+        display: block;
+    }
+
+/* toggle pass */
+.icon-btn {
+    width: 28px;
+    height: 28px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    color: #7c7f84;
+    cursor: pointer;
+    padding: 0;
+    border-radius: 6px;
+}
+
+.field.has-text .icon-btn {
+    display: flex;
+}
+
+.icon-btn:hover {
+    color: #3a3d41;
+}
+
+.icon-btn:focus-visible {
+    outline: 2px solid rgba(43,111,232,.5);
+    outline-offset: 2px;
+}
+
+.eye-open {
+    display: none;
+}
+
+.showing-pass .eye-open {
+    display: block;
+}
+
+.showing-pass .eye-closed {
+    display: none;
+}
+
+.row-between {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 10px 2px 0;
+    flex-wrap: wrap;
+}
+
+.remember {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--muted);
+}
+
+    .remember input {
+        width: 16px;
+        height: 16px;
+    }
+
+/* button */
+.btn {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 44px;
+    border: none;
+    border-radius: 10px;
+    background: var(--btn);
+    color: #fff;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background .15s ease;
+    margin-top: 12px;
+}
+
+    .btn:hover {
+        background: var(--btn-hover);
+    }
+
+    .btn:disabled {
+        opacity: .7;
+        cursor: not-allowed;
+    }
+
+.btn-loading {
+    display: none;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn.is-loading .btn-text {
+    display: none;
+}
+
+.btn.is-loading .btn-loading {
+    display: inline-flex;
+}
+
+.spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,.5);
+    border-top-color: #fff;
+    border-radius: 50%;
+    display: inline-block;
+    animation: spin 1s linear infinite;
+}
+
+/* links */
+.link {
+    display: block;
+    text-align: center;
+    margin-top: 14px;
+    color: var(--brand);
+    font-size: 14px;
+    text-decoration: none;
+}
+
+    .link:hover {
+        text-decoration: underline;
+    }
+
+.link-inline {
+    margin-top: 0;
+}
+
+/* Responsive */
+@media (max-width:420px) {
+    .brand-title {
+        font-size: 38px;
+    }
+
+    .card {
+        padding: 14px;
+        border-radius: 12px;
+    }
+
+    .field input {
+        padding: 13px 44px 13px 12px;
+    }
+}
+
+/* Overlay */
+#pageLoading {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.3);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+}
+
+    #pageLoading .box {
+        background: #fff;
+        padding: 20px;
+        border-radius: 10px;
+    }
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

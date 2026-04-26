@@ -1,0 +1,106 @@
+﻿@model List<WebServer.Dtos.ConversationThreadDto>
+
+@functions {
+    // Format kiểu "3 giờ", "5 phút", "Hôm qua"
+    string ToRelativeTime(DateTime? utc)
+    {
+        if (utc == null) return "";
+        // Nếu server bạn trả về local time thì bỏ .ToUniversalTime() cho phù hợp
+        var dt = DateTime.SpecifyKind(utc.Value, DateTimeKind.Utc).ToLocalTime();
+
+        var span = DateTime.Now - dt;
+        if (span.TotalSeconds < 60) return "Vừa xong";
+        if (span.TotalMinutes < 60) return $"{(int)span.TotalMinutes} phút";
+        if (span.TotalHours < 24) return $"{(int)span.TotalHours} giờ";
+        if (span.TotalDays < 2) return "Hôm qua";
+        if (span.TotalDays < 7) return $"{(int)span.TotalDays} ngày";
+        return dt.ToString("dd/MM");
+    }
+
+    string SafeImg(string? url)
+    {
+        // Nếu API trả avatarUrl rỗng -> dùng default trong wwwroot
+        if (string.IsNullOrWhiteSpace(url))
+            return Url.Content("~/assets/images/avatar-default.png");
+        return url!;
+    }
+
+    string SafeText(string? s, string fallback)
+        => string.IsNullOrWhiteSpace(s) ? fallback : s!;
+}
+
+@if (Model == null || Model.Count == 0)
+{
+    <div class="threads-empty">Chưa có cuộc trò chuyện nào.</div>
+}
+else
+{
+    @foreach (var t in Model)
+    {
+        <li class="thread-item"
+            data-id="@t.ConversationId"
+            data-name="@t.Name"
+            data-avatar="@SafeImg(t.AvatarUrl)">
+            <div class="avatar">
+                <img src="@SafeImg(t.AvatarUrl)" alt="@t.Name" />
+            </div>
+
+            <div class="thread-meta">
+                <div class="name">@SafeText(t.Name, "Người dùng")</div>
+                <div class="snippet">@SafeText(t.Snippet, "Chưa có tin nhắn")</div>
+            </div>
+
+            <div class="thread-time">@ToRelativeTime(t.LastMessageAt)</div>
+
+            <!-- Nút 3 chấm -->
+            <button class="icon-btn more-btn" type="button" aria-label="Tùy chọn">⋮</button>
+
+            <!-- Menu ẩn -->
+            <ul class="thread-menu" hidden>
+                <li class="js-mark-unread">Đánh dấu là chưa đọc</li>
+                <li class="js-mute">Tắt thông báo</li>
+                <li class="js-view-profile" data-user-name="@t.Name">Xem trang cá nhân</li>
+                <li class="js-call">Gọi thoại</li>
+                <li class="js-video">Chat video</li>
+                <li class="js-block">Chặn</li>
+                <li class="js-archive">Lưu trữ đoạn chat</li>
+                <li class="js-delete">Xóa đoạn chat</li>
+                <li class="js-report">Báo cáo</li>
+            </ul>
+        </li>
+    }
+}
+
+<script>
+    (function () {
+      // Toggle menu 3 chấm cho từng thread
+      document.querySelectorAll(".thread-item .more-btn").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const item = btn.closest(".thread-item");
+          const menu = item.querySelector(".thread-menu");
+
+          // đóng menu khác
+          document.querySelectorAll(".thread-menu").forEach(m => {
+            if (m !== menu) m.hidden = true;
+          });
+
+          menu.hidden = !menu.hidden;
+        });
+      });
+
+      // click ngoài -> đóng menu
+      document.addEventListener("click", () => {
+        document.querySelectorAll(".thread-menu").forEach(m => m.hidden = true);
+      });
+
+      // click vào thread-item -> bạn có thể mở conversation theo data-id
+      document.querySelectorAll(".thread-item").forEach(item => {
+        item.addEventListener("click", () => {
+          const conversationId = item.getAttribute("data-id");
+          // TODO: gọi ajax load messages hoặc điều hướng
+          // console.log("Open conversation:", conversationId);
+        });
+      });
+    })();
+</script>

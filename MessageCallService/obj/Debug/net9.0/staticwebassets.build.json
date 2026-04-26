@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "0PQY3axxCY1uu2o68fdIasmnInxL7vuIjBB9tlHa60s=",
+  "Source": "MessageCallService",
+  "BasePath": "_content/MessageCallService",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}

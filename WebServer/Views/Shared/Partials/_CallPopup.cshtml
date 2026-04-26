@@ -1,0 +1,83 @@
+﻿@using WebServer.ViewModels.WebServer.ViewModels
+@model CallPopupVm
+
+<div class="call_pr_modal"
+     data-call-popup="1"
+     data-conversation-id="@Model.ConversationId"
+     data-call-type="@Model.CallType"
+     data-me-id="@Model.MeId"
+     data-me-name="@Model.MeName"
+     data-me-photo="@Model.MePhoto"
+     data-peer-id="@Model.PeerId"
+     data-peer-name="@Model.PeerName"
+     data-peer-photo="@Model.PeerPhoto">
+
+    <link rel="stylesheet" href="https://unpkg.com/lucide-static@latest/font/lucide.css" />
+
+    
+
+    <!-- Remote video -->
+    <video class="call_pr_remote-video" id="remoteVideo" autoplay muted playsinline></video>
+
+    <!-- Local thumbnail -->
+    <div class="call_pr_local-wrap" aria-label="Local video">
+        <video class="call_pr_local-video" id="localVideo" autoplay muted playsinline></video>
+    </div>
+
+    <div class="call_pr_overlay" aria-hidden="true"></div>
+
+    <!-- Center: show PEER info -->
+    <div class="call_pr_center">
+        <div class="call_pr_center-card">
+            <div class="call_pr_avatar" aria-label="Caller avatar">
+                @if (!string.IsNullOrWhiteSpace(Model.PeerPhoto))
+                {
+                    <img src="@Model.PeerPhoto" alt="@Model.PeerName" />
+                }
+                else
+                {
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path fill="currentColor"
+                              d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5Z"
+                              opacity="0.9" />
+                    </svg>
+                }
+            </div>
+
+            <div class="call_pr_name">@Model.PeerName</div>
+            <div class="call_pr_status">Đang gọi...</div>
+        </div>
+    </div>
+
+    <!-- Controls: thêm icon cho 2 nút + nút end -->
+    <div class="call_pr_controls" role="toolbar" aria-label="Call controls">
+        <!-- Camera -->
+        <button class="call_pr_btn"
+                type="button"
+                data-action="toggle-camera"
+                data-on="1"
+                title="Bật/Tắt camera"
+                aria-label="Bật/Tắt camera">
+            <i class="lucide lucide-video"></i>
+        </button>
+
+        <!-- Mic -->
+        <button class="call_pr_btn"
+                type="button"
+                data-action="toggle-mic"
+                data-on="0"
+                title="Tắt/Bật mic"
+                aria-label="Tắt/Bật mic">
+            <i class="lucide lucide-mic-off"></i>
+        </button>
+
+        <!-- End -->
+        <button class="call_pr_btn call_pr_end"
+                type="button"
+                data-action="end"
+                title="Kết thúc"
+                aria-label="Kết thúc">
+            <i class="lucide lucide-phone-off"></i>
+        </button>
+    </div>
+</div>

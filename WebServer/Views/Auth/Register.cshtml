@@ -1,0 +1,256 @@
+﻿<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Đăng kí</title>
+    <link rel="stylesheet" href="~/css/pages/register/main.css" asp-append-version="true" />
+  </head>
+  <body>
+    <div class="wrap">
+      <main class="main" aria-labelledby="brand">
+        <div class="brand" id="brand">
+          <div class="brand-title" aria-hidden="true">facebook</div>
+
+          <div class="card" role="region" aria-label="Khung đăng ký">
+            <h2>Tạo tài khoản</h2>
+            <p class="subtitle">Nhanh chóng và dễ dàng.</p>
+
+            <form id="signup-form" novalidate>
+              <!-- Họ và tên -->
+              <div class="field" id="name-field">
+                <input id="signup-accountname"
+                  name="fullname"
+                  type="text"
+                  placeholder="Họ và tên"
+                  autocomplete="name"
+                  aria-describedby="name-error"
+                />
+                <svg
+                  class="icon-inline icon-alert"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    fill="currentColor"
+                    d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2V9h2v5z"
+                  />
+                </svg>
+                <div
+                  id="name-error"
+                  class="error-text"
+                  role="alert"
+                  aria-live="polite"
+                >
+                  Vui lòng nhập họ và tên.
+                </div>
+              </div>
+
+              <!-- Email hoặc số điện thoại -->
+              <div class="field" id="contact-field">
+                <input id="signup-email"
+                  name="contact"
+                  type="text"
+                  inputmode="email"
+                  placeholder="Email hoặc số di động"
+                  autocomplete="username"
+                  aria-describedby="contact-error"
+                />
+                <svg
+                  class="icon-inline icon-alert"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    fill="currentColor"
+                    d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2V9h2v5z"
+                  />
+                </svg>
+                <div
+                  id="contact-error"
+                  class="error-text"
+                  role="alert"
+                  aria-live="polite"
+                >
+                  Vui lòng nhập email hoặc số di động hợp lệ.
+                </div>
+              </div>
+
+              <!-- Mật khẩu -->
+              <div class="field" id="pass-field">
+                <input id="signup-password"
+                  name="password"
+                  type="password"
+                  placeholder="Mật khẩu"
+                  autocomplete="new-password"
+                  aria-describedby="pass-error"
+                />
+                <button
+                  class="icon-btn"
+                  id="toggle-pass"
+                  type="button"
+                  aria-label="Hiện mật khẩu"
+                  aria-pressed="false"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="eye-closed"
+                  >
+                    <path
+                      d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"
+                    />
+                    <path d="M14.084 14.158a3 3 0 0 1-4.242-4.242" />
+                    <path
+                      d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"
+                    />
+                    <path d="m2 2 20 20" />
+                  </svg>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="eye-open"
+                  >
+                    <path
+                      d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"
+                    />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                </button>
+
+                <svg
+                  class="icon-inline icon-alert"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    fill="currentColor"
+                    d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2V9h2v5z"
+                  />
+                </svg>
+
+                <div
+                  id="pass-error"
+                  class="error-text"
+                  role="alert"
+                  aria-live="polite"
+                >
+                  Mật khẩu phải có ít nhất 8 ký tự.
+                </div>
+              </div>
+
+              <!-- Xác nhận mật khẩu -->
+              <div class="field" id="confirm-field">
+                <input id="signup-confirm-password"
+                  name="confirm"
+                  type="password"
+                  placeholder="Nhập lại mật khẩu"
+                  autocomplete="new-password"
+                  aria-describedby="confirm-error"
+                />
+                <button
+                  class="icon-btn"
+                  id="toggle-confirm"
+                  type="button"
+                  aria-label="Hiện mật khẩu"
+                  aria-pressed="false"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="eye-closed"
+                  >
+                    <path
+                      d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"
+                    />
+                    <path d="M14.084 14.158a3 3 0 0 1-4.242-4.242" />
+                    <path
+                      d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"
+                    />
+                    <path d="m2 2 20 20" />
+                  </svg>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="eye-open"
+                  >
+                    <path
+                      d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"
+                    />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                </button>
+
+                <svg
+                  class="icon-inline icon-alert"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    fill="currentColor"
+                    d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2V9h2v5z"
+                  />
+                </svg>
+
+                <div
+                  id="confirm-error"
+                  class="error-text"
+                  role="alert"
+                  aria-live="polite"
+                >
+                  Mật khẩu nhập lại không khớp.
+                </div>
+              </div>
+
+              <button class="btn" type="submit">Đăng ký</button>
+
+              <a class="link" asp-controller="Auth" asp-action="Login">Bạn đã có tài khoản? Đăng nhập</a>
+              <div class="notice">
+                Bằng cách nhấn <b>Đăng ký</b>, bạn đồng ý với
+                <a href="#" onclick="return false;">Điều khoản</a> và
+                <a href="#" onclick="return false;">Chính sách</a>.
+              </div>
+            </form>
+          </div>
+        </div>
+      </main>
+    </div>
+    <!-- Overlay -->
+    <div class="pageLoading" aria-hidden="true">
+        <div class="box">Đang xử lý...</div>
+    </div>
+    <script type="module"
+            src="~/js/pages/register/main.js"
+            asp-append-version="true">
+    </script>
+
+  </body>
+</html>

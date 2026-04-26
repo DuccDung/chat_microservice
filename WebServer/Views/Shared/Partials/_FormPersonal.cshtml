@@ -1,0 +1,137 @@
+﻿@model WebServer.Dtos.UserDto
+@using System.Globalization
+
+@{
+    // Format ngày sinh: "05 tháng 12, 2006"
+    string dobText = "Chưa cập nhật";
+    if (Model?.DateOfBirth is not null)
+    {
+        var dob = Model.DateOfBirth.Value;
+        dobText = $"{dob.Day:00} tháng {dob.Month:00}, {dob.Year}";
+    }
+
+    // Map giới tính: 0 Nữ, 1 Nam, 2 Khác (tuỳ quy ước bạn đã dùng)
+    string genderText = "Chưa cập nhật";
+    if (Model?.Gender is not null)
+    {
+        genderText = Model.Gender.Value switch
+        {
+            0 => "Nữ",
+            1 => "Nam",
+            2 => "Khác",
+            _ => "Chưa cập nhật"
+        };
+    }
+
+    // Ảnh đại diện + ảnh bìa (nếu null thì để trống, CSS của bạn có thể set default)
+    var avatarUrl = string.IsNullOrWhiteSpace(Model?.PhotoPath) ? "" : Model!.PhotoPath!;
+    var coverUrl = string.IsNullOrWhiteSpace(Model?.PhotoBackground) ? "" : Model!.PhotoBackground!;
+
+    var nameText = string.IsNullOrWhiteSpace(Model?.AccountName) ? "Người dùng" : Model!.AccountName!;
+    var bioText = string.IsNullOrWhiteSpace(Model?.Bio) ? "Chưa có giới thiệu." : Model!.Bio!;
+    var emailText = string.IsNullOrWhiteSpace(Model?.Email) ? "Chưa cập nhật" : Model!.Email!;
+}
+
+<!-- FORM PERSONAL - MODAL ONLY -->
+<div class="form_personal_modal" role="dialog" aria-modal="true" aria-label="Thông tin tài khoản">
+    <div class="form_personal_topbar">
+        <button class="form_personal_icon-btn form_personal_left" type="button" aria-label="Quay lại">
+            <svg class="form_personal_icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <path d="M15 18l-6-6 6-6"></path>
+            </svg>
+        </button>
+
+        <div class="form_personal_title">Thông tin tài khoản</div>
+
+        <button class="form_personal_icon-btn form_personal_right" type="button" aria-label="Đóng" id="closeBtn">
+            <svg class="form_personal_icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 6L6 18"></path>
+                <path d="M6 6l12 12"></path>
+            </svg>
+        </button>
+    </div>
+
+    <div class="form_personal_content">
+        <!-- Cover / Background -->
+        <div class="form_personal_cover"
+             style="@(string.IsNullOrEmpty(coverUrl) ? $"background-image:url('{Url.Content("~/assets/images/cover_default.jpg")}')" : $"background-image:url('{coverUrl}')")">
+        </div>
+
+        <div class="form_personal_sheet">
+            <!-- Avatar -->
+            <div class="form_personal_avatar" aria-hidden="true"
+                 style="@(string.IsNullOrEmpty(avatarUrl) ? $"background-image:url('{Url.Content("~/assets/images/avatar-default.png")}')" : $"background-image:url('{avatarUrl}')")">
+            </div>
+
+            <div class="form_personal_name-row">
+                <div class="form_personal_name">@nameText</div>
+
+                <div class="form_personal_edit" title="Chỉnh sửa" data-account-id="@Model?.AccountId">
+                    <svg class="form_personal_icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 20h9"></path>
+                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="form_personal_actions">
+                <button class="form_personal_btn" type="button">Gọi điện</button>
+                <button class="form_personal_btn form_personal_primary" type="button">Nhắn tin</button>
+            </div>
+        </div>
+
+        <div class="form_personal_section">
+            <div class="form_personal_section-title">Giới thiệu</div>
+            <div class="form_personal_rows">
+                <div class="form_personal_row">
+                    <div class="form_personal_value">@bioText</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form_personal_section">
+            <div class="form_personal_section-title">Thông tin cá nhân</div>
+
+            <div class="form_personal_rows">
+                <div class="form_personal_row">
+                    <div class="form_personal_label">Giới tính</div>
+                    <div class="form_personal_value">@genderText</div>
+                </div>
+
+                <div class="form_personal_row">
+                    <div class="form_personal_label">Ngày sinh</div>
+                    <div class="form_personal_value">@dobText</div>
+                </div>
+
+                <div class="form_personal_row">
+                    <div class="form_personal_label">Email</div>
+                    <div class="form_personal_value">@emailText</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form_personal_spacer"></div>
+    </div>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const modal = document.querySelector(".form_personal_modal");
+      const content = document.querySelector(".form_personal_content");
+
+      const closeBtn = document.getElementById("closeBtn");          // nút X
+      const backBtn  = document.querySelector(".form_personal_left"); // nút trở về
+
+      // Bấm X: ẩn modal
+      closeBtn?.addEventListener("click", () => {
+        modal?.classList.add("is-hidden");
+      });
+
+      // Bấm trở về: ẩn form (phần content)
+      backBtn?.addEventListener("click", () => {
+        content?.classList.add("is-hidden");
+      });
+    });
+</script>

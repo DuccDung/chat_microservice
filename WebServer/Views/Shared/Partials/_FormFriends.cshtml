@@ -1,0 +1,54 @@
+﻿@* Modal form *@
+<div class="form_friends">
+    <div class="form_friends__overlay">
+        <div class="form_friends__modal"
+             role="dialog"
+             aria-modal="true"
+             aria-labelledby="formFriendsTitle">
+
+            <div class="form_friends__header">
+                <h2 class="form_friends__title" id="formFriendsTitle">Thêm bạn</h2>
+                <button class="form_friends__icon_btn" aria-label="Đóng" type="button">
+                    <span class="form_friends__icon_x" aria-hidden="true"></span>
+                </button>
+            </div>
+
+            <div class="form_friends__body">
+                <div class="form_friends__search_row">
+                    <div class="form_friends__country">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             width="24" height="24" viewBox="0 0 24 24"
+                             fill="none" stroke="#6B7280"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                             aria-hidden="true">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </div>
+
+                    <div class="form_friends__field">
+                        <input id="friendEmailInput" type="email" placeholder="Email" autocomplete="email" />
+                    </div>
+                </div>
+
+                <div class="form_friends__section">
+                    <div class="form_friends__label">Kết quả</div>
+
+                    @* Khu vực sẽ được inject partial kết quả *@
+                    <div id="friendResults">
+                        <div class="form_friends__empty">Không có kết quả.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form_friends__footer">
+                <button class="form_friends__btn form_friends__btn--ghost" type="button">
+                    Hủy
+                </button>
+                <button id="friendSearchBtn" class="form_friends__btn form_friends__btn--filled" type="button">
+                    Tìm kiếm
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

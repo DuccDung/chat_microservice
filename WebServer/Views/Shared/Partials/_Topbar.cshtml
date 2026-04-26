@@ -1,0 +1,154 @@
+﻿@using WebServer.Dtos
+@{
+    var user = (UserDto)ViewBag.User;
+}
+<style>
+
+    /* ✅ Avatar dropdown */
+    .avatar-menu {
+        position: relative;
+    }
+
+    .avatar {
+        width: 40px;
+        height: 40px;
+        border: 0;
+        background: transparent;
+        border-radius: 999px;
+        overflow: hidden;
+        cursor: pointer;
+        padding: 0;
+    }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+    .avatar-dropdown {
+        position: absolute;
+        top: calc(100% + 10px);
+        right: 0;
+        min-width: 200px;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 14px 40px rgba(0, 0, 0, 0.18);
+        overflow: hidden;
+        z-index: 9999;
+        border: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+    .avatar-dropdown__item {
+        display: block;
+        width: 100%;
+        padding: 12px 14px;
+        text-decoration: none;
+        background: transparent;
+        border: 0;
+        text-align: left;
+        cursor: pointer;
+        font-size: 14px;
+        color: #111;
+    }
+
+        .avatar-dropdown__item:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+    .avatar-dropdown__danger {
+        color: #d11a2a;
+    }
+</style>
+<div class="topbar">
+    <!-- Left: Logo + Search -->
+    <div class="top-left">
+        <a class="brand" id="backBtn">
+            <img src="~/assets/icons/facebook.svg" alt="" />
+        </a>
+        <div class="searchbar-top">
+            <img src="~/assets/icons/search.svg" alt="" />
+            <input type="text" placeholder="Tìm kiếm trên Facebook" />
+        </div>
+    </div>
+
+    <!-- Center: Main nav -->
+    <div class="top-center"></div>
+
+    <!-- Right: Options -->
+    <div class="top-right">
+        <button class="icon-btn">
+            <img src="~/assets/icons/grid.svg" alt="" />
+        </button>
+        <button class="icon-btn">
+            <img src="~/assets/icons/bell.svg" alt="" />
+        </button>
+        @* <button class="avatar"> *@
+        @*     <img src="@user.PhotoPath" alt="" /> *@
+        @* </button> *@
+        <div class="avatar-menu">
+            <button class="avatar"
+                    id="avatarBtn"
+                    aria-haspopup="true"
+                    aria-expanded="false">
+                <img src="@user.PhotoPath" alt="" />
+            </button>
+
+            <div class="avatar-dropdown" id="avatarDropdown" hidden>
+                <a class="avatar-dropdown__item" href="profile.html">Trang cá nhân</a>
+                <button class="avatar-dropdown__item avatar-dropdown__danger"
+                        id="logoutBtn"
+                        type="button">
+                    Đăng xuất
+                </button>
+            </div>
+        </div>
+    </div> 
+
+</div>
+<script>
+    const avatarBtn = document.getElementById("avatarBtn");
+    const dropdown = document.getElementById("avatarDropdown");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    function openDropdown() {
+      dropdown.hidden = false;
+      avatarBtn.setAttribute("aria-expanded", "true");
+    }
+
+    function closeDropdown() {
+      dropdown.hidden = true;
+      avatarBtn.setAttribute("aria-expanded", "false");
+    }
+
+    function toggleDropdown() {
+      if (dropdown.hidden) openDropdown();
+      else closeDropdown();
+    }
+
+    avatarBtn?.addEventListener("click", (e) => {
+      e.stopPropagation(); // tránh bị document click đóng ngay
+      toggleDropdown();
+    });
+
+    // Click ra ngoài -> đóng
+    document.addEventListener("click", () => {
+      if (!dropdown.hidden) closeDropdown();
+    });
+
+    // ESC -> đóng
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !dropdown.hidden) closeDropdown();
+    });
+
+    // Logout (demo) - bạn đổi thành call API logout thật của bạn
+    logoutBtn?.addEventListener("click", async () => {
+      // Ví dụ:
+      // await fetch("/auth/logout", { method: "POST" });
+      // window.location.href = "/login";
+
+      alert("Đăng xuất!");
+      closeDropdown();
+    });
+</script>
