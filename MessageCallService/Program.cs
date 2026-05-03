@@ -1,6 +1,6 @@
-using ApplicationServer;
-using ApplicationServer.Services;
-using ApplicationServer.Services.Interfaces;
+using AuthService;
+using AuthService.Services;
+using AuthService.Services.Interfaces;
 using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,7 +9,7 @@ LoadEnvironment(builder.Environment.ContentRootPath);
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
-builder.Services.AddScoped<IMessageCallService, ApplicationServer.Services.MessageCallService>();
+builder.Services.AddScoped<IMessageCallService, AuthService.Services.MessageCallService>();
 
 var connectionString =
     Environment.GetEnvironmentVariable("DB_Connection")
@@ -38,7 +38,7 @@ static void LoadEnvironment(string contentRootPath)
     {
         Path.Combine(contentRootPath, ".env"),
         Path.GetFullPath(Path.Combine(contentRootPath, "..", ".env")),
-        Path.GetFullPath(Path.Combine(contentRootPath, "..", "ApplicationServer", ".env"))
+        Path.GetFullPath(Path.Combine(contentRootPath, "..", "AuthService", ".env"))
     };
 
     foreach (var envPath in envPaths.Where(File.Exists))

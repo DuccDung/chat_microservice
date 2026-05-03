@@ -16,10 +16,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\ApplicationServer\Services\ServiceException.cs" Link="Services\ServiceException.cs" />
-    <Compile Include="..\ApplicationServer\Services\UserService.cs" Link="Services\UserService.cs" />
-    <Compile Include="..\ApplicationServer\Services\Interfaces\IUserService.cs" Link="Services\Interfaces\IUserService.cs" />
-    <Compile Include="..\ApplicationServer\Controllers\UsersController.cs" Link="Controllers\UsersController.cs" />
+    <Compile Include="..\AuthService\Services\ServiceException.cs" Link="Services\ServiceException.cs" />
+    <Compile Include="..\AuthService\Services\UserService.cs" Link="Services\UserService.cs" />
+    <Compile Include="..\AuthService\Services\Interfaces\IUserService.cs" Link="Services\Interfaces\IUserService.cs" />
+    <Compile Include="..\AuthService\Controllers\UsersController.cs" Link="Controllers\UsersController.cs" />
   </ItemGroup>
 
 </Project>

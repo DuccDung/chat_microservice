@@ -16,10 +16,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\ApplicationServer\Services\ServiceException.cs" Link="Services\ServiceException.cs" />
-    <Compile Include="..\ApplicationServer\Services\NotificationService.cs" Link="Services\NotificationService.cs" />
-    <Compile Include="..\ApplicationServer\Services\Interfaces\INotificationService.cs" Link="Services\Interfaces\INotificationService.cs" />
-    <Compile Include="..\ApplicationServer\Controllers\NotificationsController.cs" Link="Controllers\NotificationsController.cs" />
+    <Compile Include="..\AuthService\Services\ServiceException.cs" Link="Services\ServiceException.cs" />
+    <Compile Include="..\AuthService\Services\NotificationService.cs" Link="Services\NotificationService.cs" />
+    <Compile Include="..\AuthService\Services\Interfaces\INotificationService.cs" Link="Services\Interfaces\INotificationService.cs" />
+    <Compile Include="..\AuthService\Controllers\NotificationsController.cs" Link="Controllers\NotificationsController.cs" />
   </ItemGroup>
 
 </Project>

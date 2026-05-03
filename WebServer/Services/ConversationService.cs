@@ -1,4 +1,4 @@
-﻿using System.Net.Http.Json;
+using System.Net.Http.Json;
 using WebServer.Dtos;
 using WebServer.Interfaces;
 using static System.Net.Mime.MediaTypeNames;
@@ -33,7 +33,7 @@ namespace WebServer.Services
         {
             if (accountId <= 0) return new List<ConversationThreadDto>();
 
-            // gọi ApplicationServer
+            // gọi conversation service
             ///api/conversations/threads?accountId=1
             var res = await _http.GetAsync($"api/conversations/threads?accountId={accountId}");
             if (!res.IsSuccessStatusCode)

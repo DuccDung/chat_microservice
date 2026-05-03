@@ -12,11 +12,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\ApplicationServer\Models\*.cs" Link="Models\%(Filename)%(Extension)" />
-    <Compile Include="..\ApplicationServer\Dtos\Auth\*.cs" Link="Dtos\Auth\%(Filename)%(Extension)" />
-    <Compile Include="..\ApplicationServer\Dtos\Conversations\*.cs" Link="Dtos\Conversations\%(Filename)%(Extension)" />
-    <Compile Include="..\ApplicationServer\Dtos\User\*.cs" Link="Dtos\User\%(Filename)%(Extension)" />
-    <Compile Include="..\ApplicationServer\Dtos\Notifications\*.cs" Link="Dtos\Notifications\%(Filename)%(Extension)" />
+    <Compile Include="..\AuthService\Models\*.cs" Link="Models\%(Filename)%(Extension)" />
+    <Compile Include="..\AuthService\Dtos\Auth\*.cs" Link="Dtos\Auth\%(Filename)%(Extension)" />
+    <Compile Include="..\AuthService\Dtos\Conversations\*.cs" Link="Dtos\Conversations\%(Filename)%(Extension)" />
+    <Compile Include="..\AuthService\Dtos\User\*.cs" Link="Dtos\User\%(Filename)%(Extension)" />
+    <Compile Include="..\AuthService\Dtos\Notifications\*.cs" Link="Dtos\Notifications\%(Filename)%(Extension)" />
   </ItemGroup>
 
 </Project>

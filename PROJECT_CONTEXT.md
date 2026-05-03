@@ -12,22 +12,31 @@
 - Cap nhat tin nhan realtime qua WebSocket.
 - Thu nghiem goi video/audio bang WebRTC.
 
-Solution hien tai gom 2 project .NET 9:
+Solution hien tai gom 6 project .NET 9:
 
-- `ApplicationServer`: backend API va tang truy cap database.
+- `AuthService`: service dang nhap/dang ky.
+- `UserService`: service thong tin nguoi dung va tim kiem user.
+- `MessageCallService`: service conversation, thread, message, va peer info.
+- `NotificationService`: service thong bao.
+- `SharedKernel`: project chia se model/DTO cho cac service.
 - `WebServer`: ung dung web MVC/Razor, giao dien nguoi dung, goi API backend, va quan ly WebSocket realtime cho browser.
 
 ## 2. Cau truc tong quan
 
 ```text
 SystemChatBoxRealtime/
-|-- ApplicationServer/
+|-- AuthService/
 |   |-- Controllers/
 |   |-- Dtos/
 |   |-- Models/
 |   |-- Program.cs
 |   |-- appsettings.json
-|   `-- ApplicationServer.csproj
+|   `-- AuthService.csproj
+|
+|-- UserService/
+|-- MessageCallService/
+|-- NotificationService/
+|-- SharedKernel/
 |
 |-- WebServer/
 |   |-- Controllers/
@@ -46,9 +55,9 @@ SystemChatBoxRealtime/
 `-- PROJECT_CONTEXT.md
 ```
 
-## 3. ApplicationServer
+## 3. AuthService
 
-`ApplicationServer` la ASP.NET Core Web API. Project nay chiu trach nhiem xu ly nghiep vu va luu doc du lieu thong qua Entity Framework Core.
+`AuthService` la ASP.NET Core Web API. Project nay chiu trach nhiem dang nhap/dang ky va truy cap bang `account` thong qua Entity Framework Core.
 
 Cong nghe chinh:
 
@@ -60,11 +69,9 @@ Cong nghe chinh:
 
 File quan trong:
 
-- `ApplicationServer/Program.cs`: cau hinh controller, OpenAPI, EF Core, CORS.
-- `ApplicationServer/Models/SocialNetworkContext.cs`: DbContext va mapping cac bang SQL Server.
-- `ApplicationServer/Controllers/AuthController.cs`: API dang nhap/dang ky.
-- `ApplicationServer/Controllers/UsersController.cs`: API lay user theo id va tim user bang email.
-- `ApplicationServer/Controllers/ConversationsController.cs`: API conversation, thread, message, peer info.
+- `AuthService/Program.cs`: cau hinh controller, OpenAPI, EF Core, CORS.
+- `AuthService/Models/SocialNetworkContext.cs`: DbContext va mapping cac bang SQL Server.
+- `AuthService/Controllers/AuthController.cs`: API dang nhap/dang ky.
 
 ### API chinh
 
@@ -72,6 +79,8 @@ Authentication:
 
 - `POST /api/auth/login`
 - `POST /api/auth/register`
+
+Luu y: cac file controller/service cho user, conversation, notification van nam trong cay `AuthService` de cac project service rieng link source, nhung `AuthService.csproj` khong compile/host cac controller do.
 
 Users:
 
@@ -115,7 +124,7 @@ Trach nhiem chinh:
 
 - Render man hinh login/register/chat.
 - Luu phien dang nhap bang cookie authentication.
-- Goi API sang `ApplicationServer` bang typed `HttpClient`.
+- Goi API sang cac service backend bang typed `HttpClient`.
 - Luu file upload anh/voice vao `wwwroot/uploads`.
 - Mo WebSocket endpoint `/ws`.
 - Broadcast tin nhan realtime toi browser dang subscribe conversation.
@@ -126,9 +135,9 @@ File quan trong:
 - `WebServer/Program.cs`: cau hinh MVC, cookie auth, typed HttpClient, WebSocket endpoint `/ws`.
 - `WebServer/Controllers/AuthController.cs`: login/register tren web, tao cookie auth.
 - `WebServer/Controllers/HomeController.cs`: man hinh chat, partial views, gui message, upload image/audio, call popup.
-- `WebServer/Services/AuthService.cs`: goi API auth cua ApplicationServer.
-- `WebServer/Services/UserService.cs`: goi API user cua ApplicationServer.
-- `WebServer/Services/ConversationService.cs`: goi API conversation/message cua ApplicationServer, dong thoi luu file upload local.
+- `WebServer/Services/AuthService.cs`: goi API cua `AuthService`.
+- `WebServer/Services/UserService.cs`: goi API cua `UserService`.
+- `WebServer/Services/ConversationService.cs`: goi API cua `MessageCallService`, dong thoi luu file upload local.
 - `WebServer/Services/RealtimeHub.cs`: quan ly socket theo user va subscription theo conversation.
 - `WebServer/Services/WebSocketHandler.cs`: doc message WebSocket tu browser va xu ly subscribe/call events.
 
@@ -137,7 +146,7 @@ File quan trong:
 1. Browser mo `/Auth/Login`.
 2. JavaScript login goi endpoint WebServer `/auth/login`.
 3. `WebServer.Controllers.AuthController` goi `IAuthService.LoginAsync`.
-4. `AuthService` goi `ApplicationServer` tai `POST /api/auth/login`.
+4. WebServer goi `AuthService` tai `POST /api/auth/login`.
 5. Neu login thanh cong, WebServer tao cookie auth voi claim:
    - `ClaimTypes.NameIdentifier`: account id
    - `ClaimTypes.Name`: email
@@ -151,7 +160,7 @@ Luu y: password hien tai dang duoc so sanh truc tiep dang plain text trong datab
 
 1. Client goi `/chat/threads`.
 2. `HomeController.ThreadsView` lay account id tu cookie.
-3. WebServer goi `ApplicationServer` endpoint `/api/conversations/threads?accountId=...`.
+3. WebServer goi `MessageCallService` endpoint `/api/conversations/threads?accountId=...`.
 4. Ket qua duoc render bang partial `Views/Shared/Partials/_ChatThreads.cshtml`.
 
 ### Mo mot conversation
@@ -167,7 +176,7 @@ Luu y: password hien tai dang duoc so sanh truc tiep dang plain text trong datab
 1. User nhap tin va bam send.
 2. JS `chat_composer.js` goi `/chat/send_message`.
 3. `HomeController.SendMessage` lay sender id tu cookie.
-4. WebServer goi `ApplicationServer` endpoint `POST /api/conversations/{id}/messages`.
+4. WebServer goi `MessageCallService` endpoint `POST /api/conversations/{id}/messages`.
 5. Sau khi API tao message thanh cong, WebServer goi `RealtimeHub.BroadcastToConversationAsync`.
 6. Cac browser dang subscribe conversation nhan event `message-text`.
 
@@ -177,7 +186,7 @@ Image:
 
 - Browser gui multipart form toi `/chat/send_image`.
 - `ConversationService.SendImageMessageAsync` luu file vao `WebServer/wwwroot/uploads/chat`.
-- Sau do WebServer goi ApplicationServer de tao message type `image`.
+- Sau do WebServer goi `MessageCallService` de tao message type `image`.
 - WebSocket broadcast event `message-image`.
 
 Audio:
@@ -185,12 +194,12 @@ Audio:
 - Browser ghi am bang `MediaRecorder`.
 - File gui toi `/chat/send_audio`.
 - `ConversationService.SendAudioMessageAsync` luu file vao `WebServer/wwwroot/uploads/voice`.
-- Sau do WebServer goi ApplicationServer de tao message type `audio`.
+- Sau do WebServer goi `MessageCallService` de tao message type `audio`.
 - WebSocket broadcast event `message-audio`.
 
 ## 7. Realtime WebSocket
 
-WebSocket khong nam o `ApplicationServer`; hien tai no nam trong `WebServer`.
+WebSocket khong nam o `AuthService`; hien tai no nam trong `WebServer`.
 
 Endpoint:
 
@@ -284,7 +293,7 @@ CSS chinh:
 
 Launch settings:
 
-ApplicationServer:
+AuthService:
 
 - HTTP: `http://localhost:5007`
 - HTTPS: `https://localhost:7231`
@@ -294,7 +303,7 @@ WebServer:
 - HTTP: `http://localhost:5296`
 - HTTPS: `https://localhost:7268`
 
-`ApplicationServer/Program.cs` doc connection string tu bien moi truong:
+`AuthService/Program.cs` doc connection string tu bien moi truong:
 
 ```text
 DB_Connection
@@ -323,8 +332,8 @@ Neu config nay khong nam trong `appsettings.json`, hay kiem tra `.env`, user sec
 ## 11. Luu y ky thuat va rui ro
 
 - Password hien tai dang luu/so sanh plain text. Nen hash password truoc khi dung that.
-- `ApplicationServer/appsettings.json` co connection string SQL Server mau. Nen chuyen secret sang `.env`, user secrets, hoac secret manager.
-- WebSocket realtime hien nam trong WebServer, khong phai ApplicationServer. Neu scale nhieu instance WebServer, can Redis pub/sub hoac backplane tuong duong.
+- `AuthService/appsettings.json` co connection string SQL Server mau. Nen chuyen secret sang `.env`, user secrets, hoac secret manager.
+- WebSocket realtime hien nam trong WebServer, khong phai AuthService. Neu scale nhieu instance WebServer, can Redis pub/sub hoac backplane tuong duong.
 - Upload file luu local trong `WebServer/wwwroot/uploads`. Neu deploy container hoac multi-instance, can volume/shared storage/object storage.
 - `Message.IsRead` la bool global, chua du de read receipt theo tung user trong group chat.
 - README hien co ve noi dung tong quat nhung bi loi encoding khi doc trong terminal.
@@ -337,9 +346,9 @@ Neu config nay khong nam trong `appsettings.json`, hay kiem tra `.env`, user sec
 Thu tu goi y:
 
 1. `SystemChatBoxRealtime.sln`
-2. `ApplicationServer/Program.cs`
-3. `ApplicationServer/Controllers/ConversationsController.cs`
-4. `ApplicationServer/Models/SocialNetworkContext.cs`
+2. `AuthService/Program.cs`
+3. `MessageCallService/Program.cs`
+4. `AuthService/Models/SocialNetworkContext.cs`
 5. `WebServer/Program.cs`
 6. `WebServer/Controllers/HomeController.cs`
 7. `WebServer/Services/RealtimeHub.cs`
@@ -348,4 +357,3 @@ Thu tu goi y:
 10. `WebServer/wwwroot/js/pages/chat/chat_composer.js`
 11. `WebServer/wwwroot/js/pages/chat/chat_realtime.js`
 12. `WebServer/wwwroot/js/pages/chat/video-call-ui.js`
-

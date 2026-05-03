@@ -16,10 +16,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\ApplicationServer\Services\ServiceException.cs" Link="Services\ServiceException.cs" />
-    <Compile Include="..\ApplicationServer\Services\MessageCallService.cs" Link="Services\MessageCallService.cs" />
-    <Compile Include="..\ApplicationServer\Services\Interfaces\IMessageCallService.cs" Link="Services\Interfaces\IMessageCallService.cs" />
-    <Compile Include="..\ApplicationServer\Controllers\ConversationsController.cs" Link="Controllers\ConversationsController.cs" />
+    <Compile Include="..\AuthService\Services\ServiceException.cs" Link="Services\ServiceException.cs" />
+    <Compile Include="..\AuthService\Services\MessageCallService.cs" Link="Services\MessageCallService.cs" />
+    <Compile Include="..\AuthService\Services\Interfaces\IMessageCallService.cs" Link="Services\Interfaces\IMessageCallService.cs" />
+    <Compile Include="..\AuthService\Controllers\ConversationsController.cs" Link="Controllers\ConversationsController.cs" />
   </ItemGroup>
 
 </Project>
