@@ -89,6 +89,7 @@ app.Map("/ws", async httpContext =>
 });
 
 app.MapStaticAssets();
+app.MapControllers();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Auth}/{action=Login}"

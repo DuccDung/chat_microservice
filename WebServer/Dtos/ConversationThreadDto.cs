@@ -120,6 +120,21 @@ namespace WebServer.Dtos
         public string? AvatarUrl { get; set; }
     }
 
+    public class LeaveGroupRequestDto
+    {
+        [JsonPropertyName("accountId")]
+        public int AccountId { get; set; }
+
+        [JsonPropertyName("successorId")]
+        public int? SuccessorId { get; set; }
+    }
+
+    public class LeaveGroupResultDto
+    {
+        [JsonPropertyName("dissolved")]
+        public bool Dissolved { get; set; }
+    }
+
     public class GroupMemberDto
     {
         [JsonPropertyName("accountId")]

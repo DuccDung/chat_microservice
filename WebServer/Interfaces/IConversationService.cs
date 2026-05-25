@@ -10,6 +10,7 @@ namespace WebServer.Interfaces
         Task<GroupInfoDto> GetGroupInfoAsync(int conversationId, int meAccountId);
         Task<ConversationDto> JoinGroupAsync(int conversationId, int accountId);
         Task<GroupInfoDto> UpdateGroupAsync(int conversationId, int ownerId, string? title, string? avatarUrl);
+        Task<LeaveGroupResultDto> LeaveGroupAsync(int conversationId, int accountId, int? successorId);
         Task RemoveGroupMemberAsync(int conversationId, int ownerId, int memberId);
         Task<List<ConversationMessageDto>> GetMessagesAsync(int conversationId, int meAccountId, int limit = 50);
 

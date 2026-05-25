@@ -359,6 +359,62 @@ public sealed class MessageCallService : IMessageCallService
         return await GetGroupInfoAsync(conversationId, req.OwnerId, ct);
     }
 
+    public async Task<LeaveGroupResultDto> LeaveGroupAsync(int conversationId, LeaveGroupRequest req, CancellationToken ct = default)
+    {
+        if (conversationId <= 0)
+            throw new ServiceException(StatusCodes.Status400BadRequest, "conversationId is required.");
+        if (req == null)
+            throw new ServiceException(StatusCodes.Status400BadRequest, "Body is required.");
+        if (req.AccountId <= 0)
+            throw new ServiceException(StatusCodes.Status400BadRequest, "AccountId is required.");
+
+        await using var tx = await _context.Database.BeginTransactionAsync(ct);
+
+        var conversation = await _context.Conversations
+            .FirstOrDefaultAsync(c => c.ConversationId == conversationId && c.IsGroup, ct);
+
+        if (conversation == null)
+            throw new ServiceException(StatusCodes.Status404NotFound, "Group not found.");
+
+        var members = await _context.ConversationMembers
+            .Where(cm => cm.ConversationId == conversationId)
+            .ToListAsync(ct);
+
+        var leavingMember = members.FirstOrDefault(cm => cm.AccountId == req.AccountId);
+        if (leavingMember == null)
+            throw new ServiceException(StatusCodes.Status403Forbidden, "User is not a member of this group.");
+
+        var remainingMembers = members
+            .Where(cm => cm.AccountId != req.AccountId)
+            .ToList();
+
+        if (remainingMembers.Count < 2)
+        {
+            await DissolveGroupAsync(conversation, ct);
+            await tx.CommitAsync(ct);
+            return new LeaveGroupResultDto { Dissolved = true };
+        }
+
+        var isOwner = leavingMember.Title == GroupOwnerRole;
+        if (isOwner)
+        {
+            if (!req.SuccessorId.HasValue)
+                throw new ServiceException(StatusCodes.Status400BadRequest, "SuccessorId is required when group owner leaves.");
+
+            var successor = remainingMembers.FirstOrDefault(cm => cm.AccountId == req.SuccessorId.Value);
+            if (successor == null)
+                throw new ServiceException(StatusCodes.Status400BadRequest, "Successor must be an existing group member.");
+
+            successor.Title = GroupOwnerRole;
+        }
+
+        _context.ConversationMembers.Remove(leavingMember);
+        await _context.SaveChangesAsync(ct);
+        await tx.CommitAsync(ct);
+
+        return new LeaveGroupResultDto { Dissolved = false };
+    }
+
     public async Task RemoveGroupMemberAsync(int conversationId, RemoveGroupMemberRequest req, CancellationToken ct = default)
     {
         if (conversationId <= 0)
@@ -584,6 +640,23 @@ public sealed class MessageCallService : IMessageCallService
 
         if (!isOwner)
             throw new ServiceException(StatusCodes.Status403Forbidden, "Only group owner can update this group.");
+    }
+
+    private async Task DissolveGroupAsync(Conversation conversation, CancellationToken ct)
+    {
+        var messages = await _context.Messages
+            .Where(m => m.ConversationId == conversation.ConversationId)
+            .ToListAsync(ct);
+
+        var members = await _context.ConversationMembers
+            .Where(cm => cm.ConversationId == conversation.ConversationId)
+            .ToListAsync(ct);
+
+        _context.Messages.RemoveRange(messages);
+        _context.ConversationMembers.RemoveRange(members);
+        _context.Conversations.Remove(conversation);
+
+        await _context.SaveChangesAsync(ct);
     }
 
     private static ConversationDto MapConversation(Conversation conversation)

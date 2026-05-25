@@ -7,6 +7,7 @@
     var memberCount = members.Count;
     var defaultAvatar = Url.Content("~/assets/icons/group-default.svg");
     var groupAvatar = string.IsNullOrWhiteSpace(group.AvatarUrl) ? defaultAvatar : group.AvatarUrl;
+    var canTransferOwner = group.IsOwner && memberCount > 2;
 
     string MemberAvatar(string? path)
     {
@@ -74,6 +75,39 @@
                 <input type="text" value="@inviteUrl" readonly aria-label="Liên kết tham gia nhóm" />
                 <button class="group_manage__copy" type="button" data-copy-text="@inviteUrl">Sao chép</button>
             </div>
+        </section>
+
+        <section class="group_manage__section group_manage__leave_section">
+            <div class="group_manage__section_header">
+                <h3>Rời nhóm</h3>
+            </div>
+
+            @if (canTransferOwner)
+            {
+                <label class="group_manage__field_label" for="groupSuccessorSelect">Chọn trưởng nhóm kế thừa</label>
+                <select id="groupSuccessorSelect" class="group_manage__successor">
+                    <option value="">Chọn thành viên</option>
+                    @foreach (var member in members.Where(m => !string.Equals(m.Role, "owner", StringComparison.OrdinalIgnoreCase)))
+                    {
+                        <option value="@member.AccountId">@member.AccountName (@member.Email)</option>
+                    }
+                </select>
+                <div class="group_manage__leave_hint">Bạn phải chọn người kế thừa trước khi rời nhóm.</div>
+            }
+            else if (group.IsOwner || memberCount <= 2)
+            {
+                <div class="group_manage__leave_hint group_manage__leave_hint--danger">
+                    Nếu bạn rời nhóm lúc này, nhóm sẽ bị giải tán vì không còn đủ thành viên.
+                </div>
+            }
+            else
+            {
+                <div class="group_manage__leave_hint">Bạn có thể tham gia lại bằng liên kết mời nếu nhóm còn tồn tại.</div>
+            }
+
+            <button class="group_manage__leave" type="button" data-is-owner="@group.IsOwner.ToString().ToLowerInvariant()">
+                Rời nhóm
+            </button>
         </section>
 
         <section class="group_manage__section">

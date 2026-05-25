@@ -80,6 +80,27 @@
   },
   {
     "ContainingType": "AuthService.Controllers.ConversationsController",
+    "Method": "LeaveGroup",
+    "RelativePath": "api/conversations/{conversationId}/group/leave",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "conversationId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "req",
+        "Type": "AuthService.Dtos.Conversations.LeaveGroupRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "AuthService.Controllers.ConversationsController",
     "Method": "RemoveGroupMember",
     "RelativePath": "api/conversations/{conversationId}/group/members/{memberId}",
     "HttpMethod": "DELETE",

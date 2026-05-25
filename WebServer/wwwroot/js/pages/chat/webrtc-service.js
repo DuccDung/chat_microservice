@@ -31,6 +31,10 @@ function log(...args) {
     console.log("[RTC]", ...args);
 }
 
+function emit(name, detail = {}) {
+    window.dispatchEvent(new CustomEvent(name, { detail }));
+}
+
 export function setVideoElements(localVideoEl, remoteVideoEl) {
     rtc.localVideoEl = localVideoEl;
     rtc.remoteVideoEl = remoteVideoEl;
@@ -56,7 +60,12 @@ async function ensureLocalStream(callType) {
             ? { audio: true, video: false }
             : { audio: true, video: { width: 640, height: 360 } };
 
-    rtc.localStream = await navigator.mediaDevices.getUserMedia(constraints);
+    try {
+        rtc.localStream = await navigator.mediaDevices.getUserMedia(constraints);
+    } catch (error) {
+        emit("call:media-error", { error: error?.message || String(error) });
+        throw error;
+    }
 
     if (rtc.localVideoEl) {
         rtc.localVideoEl.srcObject = rtc.localStream;
@@ -104,6 +113,10 @@ export async function ensurePeerConnection({ meId, peerId, conversationId, callT
     rtc.pc.ontrack = (ev) => {
         const stream = ensureRemoteStream();
         ev.streams[0].getTracks().forEach((t) => stream.addTrack(t));
+        emit("call:remote-track", {
+            conversationId: rtc.conversationId,
+            callType: rtc.callType
+        });
     };
 
     // ICE -> send to peer
@@ -118,10 +131,22 @@ export async function ensurePeerConnection({ meId, peerId, conversationId, callT
 
     rtc.pc.onconnectionstatechange = () => {
         log("connectionState =", rtc.pc.connectionState);
+        emit("call:rtc-state", {
+            connectionState: rtc.pc.connectionState,
+            iceConnectionState: rtc.pc.iceConnectionState,
+            conversationId: rtc.conversationId,
+            callType: rtc.callType
+        });
     };
 
     rtc.pc.oniceconnectionstatechange = () => {
         log("iceConnectionState =", rtc.pc.iceConnectionState);
+        emit("call:rtc-state", {
+            connectionState: rtc.pc.connectionState,
+            iceConnectionState: rtc.pc.iceConnectionState,
+            conversationId: rtc.conversationId,
+            callType: rtc.callType
+        });
     };
 
     return rtc.pc;

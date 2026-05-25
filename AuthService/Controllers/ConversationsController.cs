@@ -94,6 +94,19 @@ namespace AuthService.Controllers
             }
         }
 
+        [HttpPost("{conversationId:int}/group/leave")]
+        public async Task<IActionResult> LeaveGroup(int conversationId, [FromBody] LeaveGroupRequest req, CancellationToken ct)
+        {
+            try
+            {
+                return Ok(await _messageCallService.LeaveGroupAsync(conversationId, req, ct));
+            }
+            catch (ServiceException ex)
+            {
+                return ToErrorResult(ex);
+            }
+        }
+
         [HttpDelete("{conversationId:int}/group/members/{memberId:int}")]
         public async Task<IActionResult> RemoveGroupMember(
             int conversationId,

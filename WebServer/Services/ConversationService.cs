@@ -144,6 +144,25 @@ namespace WebServer.Services
                 ?? throw new Exception("Update group response is empty.");
         }
 
+        public async Task<LeaveGroupResultDto> LeaveGroupAsync(int conversationId, int accountId, int? successorId)
+        {
+            var body = new LeaveGroupRequestDto
+            {
+                AccountId = accountId,
+                SuccessorId = successorId
+            };
+
+            var res = await _http.PostAsJsonAsync($"api/conversations/{conversationId}/group/leave", body);
+            if (!res.IsSuccessStatusCode)
+            {
+                var err = await res.Content.ReadAsStringAsync();
+                throw new Exception($"Leave group failed. Status: {res.StatusCode}. Body: {err}");
+            }
+
+            return await res.Content.ReadFromJsonAsync<LeaveGroupResultDto>()
+                ?? throw new Exception("Leave group response is empty.");
+        }
+
         public async Task RemoveGroupMemberAsync(int conversationId, int ownerId, int memberId)
         {
             var res = await _http.DeleteAsync($"api/conversations/{conversationId}/group/members/{memberId}?ownerId={ownerId}");

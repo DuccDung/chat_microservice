@@ -13,6 +13,7 @@
     var ownPosts = Model.Posts
         .Where(x => x.AccountId == Model.User.AccountId)
         .ToList();
+    var isOwner = Model.IsOwner;
     var genderText = Model.User.Gender switch
     {
         1 => "Nam",
@@ -29,26 +30,34 @@
 }
 
 <main class="profile-page"
-      data-current-account-id="@Model.User.AccountId"
+      data-current-account-id="@Model.ViewerAccountId"
+      data-profile-account-id="@Model.User.AccountId"
+      data-is-owner="@isOwner.ToString().ToLowerInvariant()"
       data-default-avatar="@Model.DefaultAvatarPath"
       data-default-cover="@Model.DefaultCoverPath">
     <section class="profile-shell">
         <header class="profile-hero">
             <div class="profile-cover" style="background-image: url('@cover')">
+                @if (isOwner)
+                {
                 <button class="profile-cover__action" id="coverUploadBtn" type="button">
                     <span class="profile-icon">📷</span>
                     <span>Thêm ảnh bìa</span>
                 </button>
                 <input id="coverInput" type="file" accept="image/*" hidden />
+                }
             </div>
 
             <div class="profile-summary">
                 <div class="profile-avatar-wrap">
                     <img class="profile-avatar" id="profileAvatar" src="@avatar" alt="@Model.User.AccountName" />
+                    @if (isOwner)
+                    {
                     <button class="profile-avatar-edit" id="avatarUploadBtn" type="button" aria-label="Đổi ảnh đại diện">
                         <span>📷</span>
                     </button>
                     <input id="avatarInput" type="file" accept="image/*" hidden />
+                    }
                 </div>
 
                 <div class="profile-title">
@@ -56,10 +65,13 @@
                     <p>@Model.User.Email</p>
                 </div>
 
+                @if (isOwner)
+                {
                 <div class="profile-actions">
                     <button class="profile-btn profile-btn--primary" id="openPostComposer" type="button">Tạo bài viết</button>
                     <button class="profile-btn" id="openEditProfile" type="button">Chỉnh sửa trang cá nhân</button>
                 </div>
+                }
             </div>
 
             <nav class="profile-tabs" aria-label="Điều hướng trang cá nhân">

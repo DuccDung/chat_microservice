@@ -46,6 +46,11 @@ export const chatService = {
     async removeGroupMember(conversationId, memberId) {
         return await api_origin.post(`/chat/groups/${conversationId}/members/${memberId}/remove`);
     },
+    async leaveGroup(conversationId, successorId = null) {
+        return await api_origin.post(`/chat/groups/${conversationId}/leave`, {
+            successorId
+        });
+    },
     async getPersonalView(userId) {
         return await api_origin.get("/chat/personal", {
             params: { userId }

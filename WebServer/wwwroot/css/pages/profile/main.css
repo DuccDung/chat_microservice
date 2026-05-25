@@ -20,6 +20,16 @@ body {
     min-height: calc(100vh - 56px);
 }
 
+.profile-page[data-is-owner="false"] .profile-cover__action,
+.profile-page[data-is-owner="false"] .profile-avatar-edit,
+.profile-page[data-is-owner="false"] .profile-actions,
+.profile-page[data-is-owner="false"] #openEditBio,
+.profile-page[data-is-owner="false"] .profile-composer,
+.profile-page[data-is-owner="false"] .profile-post__menu,
+.profile-page[data-is-owner="false"] .profile-modal {
+    display: none !important;
+}
+
 .profile-shell {
     max-width: 1095px;
     margin: 56px auto 0;

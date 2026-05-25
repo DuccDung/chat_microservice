@@ -245,6 +245,28 @@ namespace WebServer.Controllers
             }
         }
 
+        [HttpPost("/chat/groups/{conversationId:int}/leave")]
+        public async Task<IActionResult> LeaveGroup(int conversationId, [FromBody] LeaveGroupWebRequest req)
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(userIdStr))
+                return Unauthorized(new { message = "Not logged in." });
+
+            try
+            {
+                var result = await _conversationService.LeaveGroupAsync(
+                    conversationId,
+                    int.Parse(userIdStr),
+                    req?.SuccessorId);
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         [HttpGet("/chat/threads")]
         public async Task<IActionResult> ThreadsView([FromServices] IConversationService conversationService)
         {
@@ -568,6 +590,11 @@ namespace WebServer.Controllers
     {
         public string? Title { get; set; }
         public IFormFile? Avatar { get; set; }
+    }
+
+    public sealed class LeaveGroupWebRequest
+    {
+        public int? SuccessorId { get; set; }
     }
 
 }

@@ -42,6 +42,21 @@ if (!threadList) {
             return;
         }
 
+        const viewProfile = e.target.closest(".js-view-profile");
+        if (viewProfile) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const item = viewProfile.closest(".thread-item");
+            const accountId = item?.dataset.otherAccountId;
+            closeAllMenusExcept(null);
+
+            if (accountId) {
+                window.location.href = `/profile/${encodeURIComponent(accountId)}`;
+            }
+            return;
+        }
+
         const item = e.target.closest(".thread-item");
         if (!item || !threadList.contains(item)) return;
 
@@ -92,6 +107,42 @@ document.addEventListener("click", async (e) => {
             console.error(err);
             load(false);
             alert(getErrorMessage(err, "Không lưu được thông tin nhóm."));
+        }
+        return;
+    }
+
+    const leaveBtn = e.target.closest(".group_manage__leave");
+    if (leaveBtn) {
+        const modal = leaveBtn.closest(".group_manage");
+        const conversationId = modal?.dataset.conversationId;
+        const isOwner = leaveBtn.dataset.isOwner === "true";
+        const successorSelect = modal?.querySelector(".group_manage__successor");
+        const successorId = successorSelect?.value ? Number(successorSelect.value) : null;
+
+        if (!conversationId) return;
+
+        if (isOwner && successorSelect && !successorId) {
+            alert("Vui lòng chọn trưởng nhóm kế thừa trước khi rời nhóm.");
+            return;
+        }
+
+        const confirmText = successorSelect
+            ? "Rời nhóm và chuyển quyền trưởng nhóm cho người được chọn?"
+            : "Rời nhóm? Nếu nhóm không còn đủ thành viên, nhóm sẽ bị giải tán.";
+
+        if (!confirm(confirmText)) return;
+
+        try {
+            load(true);
+            const result = await chatService.leaveGroup(conversationId, successorId);
+            await loadThreads();
+            clearConversationIfActive(conversationId, result?.data?.dissolved);
+            document.querySelector("[data-modal-close='true']")?.click();
+            load(false);
+        } catch (err) {
+            console.error(err);
+            load(false);
+            alert(getErrorMessage(err, "Không rời nhóm được."));
         }
         return;
     }
@@ -232,6 +283,20 @@ function updateActiveConversationHeader(group) {
     } else {
         if (peerName && group.title) peerName.textContent = group.title;
         if (peerAvatar && group.avatarUrl) peerAvatar.src = group.avatarUrl;
+    }
+}
+
+function clearConversationIfActive(conversationId, dissolved) {
+    const active = document.querySelector(`.thread-item.active[data-id="${conversationId}"]`);
+    if (!active) return;
+
+    if (peerName) peerName.textContent = dissolved ? "Nhóm đã giải tán" : "Bạn đã rời nhóm";
+    if (peerStatus) peerStatus.textContent = "";
+    if (peerAvatar) peerAvatar.src = "/assets/icons/group-default.svg";
+
+    const scroller = document.getElementById("messageScroller");
+    if (scroller) {
+        scroller.innerHTML = `<div class="threads-empty">${dissolved ? "Nhóm đã giải tán." : "Bạn đã rời khỏi nhóm này."}</div>`;
     }
 }
 

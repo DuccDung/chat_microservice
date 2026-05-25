@@ -30,16 +30,38 @@ namespace WebServer.Controllers
             var accountId = GetCurrentAccountId();
             if (accountId == null) return RedirectToAction("Login", "Auth");
 
-            var profile = await _profileService.GetProfileAsync(accountId.Value, ct);
-            var posts = await _profileService.GetPostsAsync(accountId.Value, ct);
-            posts = posts.Where(x => x.AccountId == accountId.Value).ToList();
+            return await RenderProfilePageAsync(accountId.Value, accountId.Value, ct);
+        }
 
-            ViewBag.User = ToUserDto(profile);
+        [HttpGet("/profile/{accountId:int}")]
+        public async Task<IActionResult> ViewProfile(int accountId, CancellationToken ct)
+        {
+            var currentAccountId = GetCurrentAccountId();
+            if (currentAccountId == null) return RedirectToAction("Login", "Auth");
 
-            return View(new ProfilePageVm
+            if (accountId <= 0) return NotFound();
+
+            return await RenderProfilePageAsync(accountId, currentAccountId.Value, ct);
+        }
+
+        private async Task<IActionResult> RenderProfilePageAsync(int profileAccountId, int viewerAccountId, CancellationToken ct)
+        {
+            var profile = await _profileService.GetProfileAsync(profileAccountId, ct);
+            var posts = await _profileService.GetPostsAsync(profileAccountId, ct);
+            posts = posts.Where(x => x.AccountId == profileAccountId).ToList();
+
+            var viewer = profileAccountId == viewerAccountId
+                ? profile
+                : await _profileService.GetProfileAsync(viewerAccountId, ct);
+
+            ViewBag.User = ToUserDto(viewer);
+
+            return View("Index", new ProfilePageVm
             {
                 User = profile,
-                Posts = posts
+                Posts = posts,
+                ViewerAccountId = viewerAccountId,
+                IsOwner = profileAccountId == viewerAccountId
             });
         }
 

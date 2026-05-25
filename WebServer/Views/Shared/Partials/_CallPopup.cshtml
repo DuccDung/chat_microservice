@@ -1,83 +1,98 @@
-﻿@using WebServer.ViewModels.WebServer.ViewModels
+@using WebServer.ViewModels.WebServer.ViewModels
 @model CallPopupVm
 
-<div class="call_pr_modal"
+@{
+    var isAudio = string.Equals(Model.CallType, "audio", StringComparison.OrdinalIgnoreCase);
+    var callTypeText = isAudio ? "Cuộc gọi thoại" : "Cuộc gọi video";
+    var peerName = string.IsNullOrWhiteSpace(Model.PeerName) ? "Người dùng" : Model.PeerName;
+    var peerPhoto = string.IsNullOrWhiteSpace(Model.PeerPhoto)
+        ? Url.Content("~/assets/images/avatar-default.png")
+        : Model.PeerPhoto;
+    var defaultAvatar = Url.Content("~/assets/images/avatar-default.png");
+}
+
+<div class="call_pr_modal @(isAudio ? "call_pr_modal--audio" : "call_pr_modal--video")"
      data-call-popup="1"
+     data-call-state="calling"
      data-conversation-id="@Model.ConversationId"
      data-call-type="@Model.CallType"
      data-me-id="@Model.MeId"
      data-me-name="@Model.MeName"
      data-me-photo="@Model.MePhoto"
      data-peer-id="@Model.PeerId"
-     data-peer-name="@Model.PeerName"
-     data-peer-photo="@Model.PeerPhoto">
+     data-peer-name="@peerName"
+     data-peer-photo="@peerPhoto">
 
-    <link rel="stylesheet" href="https://unpkg.com/lucide-static@latest/font/lucide.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 
-    
+    <video class="call_pr_remote-video" id="remoteVideo" autoplay playsinline></video>
+    <div class="call_pr_remote-fallback" aria-hidden="true"></div>
 
-    <!-- Remote video -->
-    <video class="call_pr_remote-video" id="remoteVideo" autoplay muted playsinline></video>
-
-    <!-- Local thumbnail -->
-    <div class="call_pr_local-wrap" aria-label="Local video">
-        <video class="call_pr_local-video" id="localVideo" autoplay muted playsinline></video>
-    </div>
-
-    <div class="call_pr_overlay" aria-hidden="true"></div>
-
-    <!-- Center: show PEER info -->
-    <div class="call_pr_center">
-        <div class="call_pr_center-card">
-            <div class="call_pr_avatar" aria-label="Caller avatar">
-                @if (!string.IsNullOrWhiteSpace(Model.PeerPhoto))
-                {
-                    <img src="@Model.PeerPhoto" alt="@Model.PeerName" />
-                }
-                else
-                {
-                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                        <path fill="currentColor"
-                              d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5Z"
-                              opacity="0.9" />
-                    </svg>
-                }
+    <header class="call_pr_topbar">
+        <div class="call_pr_peer">
+            <div class="call_pr_peer-avatar">
+                <img src="@peerPhoto" alt="@peerName" onerror="this.onerror=null;this.src='@defaultAvatar';" />
             </div>
-
-            <div class="call_pr_name">@Model.PeerName</div>
-            <div class="call_pr_status">Đang gọi...</div>
+            <div class="call_pr_peer-meta">
+                <strong>@peerName</strong>
+                <span data-call-status>@callTypeText - Đang gọi...</span>
+            </div>
         </div>
-    </div>
+    </header>
 
-    <!-- Controls: thêm icon cho 2 nút + nút end -->
-    <div class="call_pr_controls" role="toolbar" aria-label="Call controls">
-        <!-- Camera -->
+    <section class="call_pr_stage" aria-live="polite">
+        <div class="call_pr_center-card">
+            <div class="call_pr_avatar">
+                <img src="@peerPhoto" alt="@peerName" onerror="this.onerror=null;this.src='@defaultAvatar';" />
+            </div>
+            <div class="call_pr_name">@peerName</div>
+            <div class="call_pr_status" data-call-status>Đang gọi...</div>
+            <div class="call_pr_signal" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </section>
+
+    <aside class="call_pr_local-wrap" aria-label="Camera của bạn">
+        <video class="call_pr_local-video" id="localVideo" autoplay muted playsinline></video>
+        <div class="call_pr_local-empty">
+            <i class="fa-solid fa-video-slash"></i>
+            <span>Camera đang tắt</span>
+        </div>
+        <div class="call_pr_local-label">Bạn</div>
+    </aside>
+
+    <div class="call_pr_controls" role="toolbar" aria-label="Điều khiển cuộc gọi">
         <button class="call_pr_btn"
                 type="button"
                 data-action="toggle-camera"
-                data-on="1"
+                data-on="@(isAudio ? "0" : "1")"
                 title="Bật/Tắt camera"
-                aria-label="Bật/Tắt camera">
-            <i class="lucide lucide-video"></i>
+                aria-label="Bật/Tắt camera"
+                @(isAudio ? "disabled" : "")>
+            <i class="fa-solid @(isAudio ? "fa-video-slash" : "fa-video")"></i>
+            <span>Camera</span>
         </button>
 
-        <!-- Mic -->
         <button class="call_pr_btn"
                 type="button"
                 data-action="toggle-mic"
-                data-on="0"
+                data-on="1"
                 title="Tắt/Bật mic"
                 aria-label="Tắt/Bật mic">
-            <i class="lucide lucide-mic-off"></i>
+            <i class="fa-solid fa-microphone"></i>
+            <span>Mic</span>
         </button>
 
-        <!-- End -->
         <button class="call_pr_btn call_pr_end"
                 type="button"
                 data-action="end"
                 title="Kết thúc"
                 aria-label="Kết thúc">
-            <i class="lucide lucide-phone-off"></i>
+            <i class="fa-solid fa-phone-slash"></i>
+            <span>Kết thúc</span>
         </button>
     </div>
 </div>

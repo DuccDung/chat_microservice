@@ -51,6 +51,17 @@ namespace AuthService.Dtos.Conversations
         public string? AvatarUrl { get; set; }
     }
 
+    public class LeaveGroupRequest
+    {
+        public int AccountId { get; set; }
+        public int? SuccessorId { get; set; }
+    }
+
+    public class LeaveGroupResultDto
+    {
+        public bool Dissolved { get; set; }
+    }
+
     public class GroupMemberDto
     {
         public int AccountId { get; set; }

@@ -1218,8 +1218,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>z3d20iwbgt</Fingerprint>
-      <Integrity>3/bDHL7vM+9tYMLTj4oqJoFTXPaG/yW2HWBze/K97RI=</Integrity>
+      <Fingerprint>1qeskhnbmq</Fingerprint>
+      <Integrity>dx4RsPbYtFeWrE56yY4Mv6iGDTPZon1Ig3jH0NrHL80=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\pages\home\main.css'))</OriginalItemSpec>
@@ -1254,8 +1254,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>mpglfsnl07</Fingerprint>
-      <Integrity>2lb7SGKYfU8/0BVLfFSsKrjUTFHOEimv+8pVIAm7sVc=</Integrity>
+      <Fingerprint>73hlqu3dzh</Fingerprint>
+      <Integrity>w0v2UfAXstBgoLZUTI8jRZympTgQesv6sm9/WQTycbE=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\pages\profile\main.css'))</OriginalItemSpec>
@@ -1452,8 +1452,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>n11r1xdh2d</Fingerprint>
-      <Integrity>9ewHG50jELyNxkpha/OCc6tr8bRE2CX+Z25kdpKzD98=</Integrity>
+      <Fingerprint>sey7voe10x</Fingerprint>
+      <Integrity>DFf7u5f410ekytd7RmgXy+h+nwxNE+Y2FXyWf5v0taE=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\pages\chat\handle_choice_item_threads.js'))</OriginalItemSpec>
@@ -1524,8 +1524,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>2jg9j1shst</Fingerprint>
-      <Integrity>7lJQe0/AMTwy/qW06aCjJhiDLucKtDeMcmnIKVwpaOg=</Integrity>
+      <Fingerprint>0zi9nyidhb</Fingerprint>
+      <Integrity>tJjMpSQbsBXVZM3aTYi+dyx6HpXImsNB1C3owLESWfM=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\pages\chat\video-call-ui.js'))</OriginalItemSpec>
@@ -1542,8 +1542,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>495ztfu6u7</Fingerprint>
-      <Integrity>WD7TrV+aFKNn+R8pi5K0+DXKQWDeOZl3o8AMRzgqLj8=</Integrity>
+      <Fingerprint>3arisynn98</Fingerprint>
+      <Integrity>m+6/oJeIjNdaLyIRCWTV6LING5+4ZzkJOtvHGzzalp4=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\pages\chat\webrtc-service.js'))</OriginalItemSpec>
@@ -1614,8 +1614,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>ktoetpqd71</Fingerprint>
-      <Integrity>KJYXbnApatcbZj3J6h137peXrOAZYDQh48LGK4f5dCM=</Integrity>
+      <Fingerprint>b0n6z82txi</Fingerprint>
+      <Integrity>BcNggyQvjiDUKbjGw/IHFSGy5W3fGww9zZkHjPpEqdM=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\services\chatService.js'))</OriginalItemSpec>
@@ -1763,6 +1763,24 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\chat\c5de9ea059f348c5aa1f034392534ca9.webp'))</OriginalItemSpec>
+    </StaticWebAsset>
+    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\groups\326b3dee0a324f8ab1d812e55963fcf5.png'))">
+      <SourceType>Package</SourceType>
+      <SourceId>WebServer</SourceId>
+      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
+      <BasePath>_content/WebServer</BasePath>
+      <RelativePath>uploads/groups/326b3dee0a324f8ab1d812e55963fcf5.png</RelativePath>
+      <AssetKind>All</AssetKind>
+      <AssetMode>All</AssetMode>
+      <AssetRole>Primary</AssetRole>
+      <RelatedAsset></RelatedAsset>
+      <AssetTraitName></AssetTraitName>
+      <AssetTraitValue></AssetTraitValue>
+      <Fingerprint>u8qtwfvp5f</Fingerprint>
+      <Integrity>4uk+EAzc0S+A4BirqposzH7KgC1QDjgl9+kQjOSLFd0=</Integrity>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\groups\326b3dee0a324f8ab1d812e55963fcf5.png'))</OriginalItemSpec>
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\posts\021f48de1e1344b9ba646f6368d5e2a9.png'))">
       <SourceType>Package</SourceType>

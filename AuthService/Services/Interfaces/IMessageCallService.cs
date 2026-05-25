@@ -10,6 +10,7 @@ public interface IMessageCallService
     Task<GroupInfoDto> GetGroupInfoAsync(int conversationId, int meId, CancellationToken ct = default);
     Task<ConversationDto> JoinGroupAsync(int conversationId, int accountId, CancellationToken ct = default);
     Task<GroupInfoDto> UpdateGroupAsync(int conversationId, UpdateGroupRequest req, CancellationToken ct = default);
+    Task<LeaveGroupResultDto> LeaveGroupAsync(int conversationId, LeaveGroupRequest req, CancellationToken ct = default);
     Task RemoveGroupMemberAsync(int conversationId, RemoveGroupMemberRequest req, CancellationToken ct = default);
     Task<List<MessageDto>> GetMessagesAsync(int conversationId, int meId, int limit = 50, int? beforeMessageId = null, CancellationToken ct = default);
     Task MarkReadAsync(int conversationId, int meId, CancellationToken ct = default);

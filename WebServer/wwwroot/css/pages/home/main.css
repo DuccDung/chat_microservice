@@ -2437,6 +2437,54 @@ body.light .chat-action-btn {
     filter: brightness(0.95);
 }
 
+.group_manage__leave_section {
+    border: 1px solid #fee2e2;
+    border-radius: 10px;
+    padding: 12px;
+    background: #fffafa;
+}
+
+.group_manage__successor {
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    color: #111827;
+    font-size: 14px;
+    outline: 0;
+    padding: 10px 11px;
+}
+
+.group_manage__successor:focus {
+    border-color: #1877f2;
+    box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.12);
+}
+
+.group_manage__leave_hint {
+    color: #6b7280;
+    font-size: 13px;
+    margin-top: 8px;
+}
+
+.group_manage__leave_hint--danger {
+    color: #b91c1c;
+    font-weight: 650;
+}
+
+.group_manage__leave {
+    border: 0;
+    border-radius: 10px;
+    background: #dc2626;
+    color: #fff;
+    cursor: pointer;
+    font-weight: 750;
+    margin-top: 12px;
+    padding: 9px 13px;
+}
+
+.group_manage__leave:hover {
+    background: #b91c1c;
+}
+
 .group_manage__section + .group_manage__section {
     margin-top: 18px;
 }
@@ -2967,4 +3015,561 @@ body.light .chat-action-btn {
     .call_pr_btn[data-on="0"] {
         opacity: .75;
     }
+
+/* =========================
+   Polished 1v1 call UI
+   ========================= */
+.call_pr_modal {
+    --call-surface: rgba(18, 18, 22, 0.74);
+    --call-surface-strong: rgba(24, 24, 28, 0.92);
+    --call-border: rgba(255, 255, 255, 0.14);
+    --call-text: #ffffff;
+    --call-muted: rgba(255, 255, 255, 0.72);
+    --call-danger: #f02849;
+    --call-control: rgba(42, 43, 48, 0.94);
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    min-height: 100vh;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 18% 12%, rgba(51, 64, 89, 0.46), transparent 32%),
+        radial-gradient(circle at 84% 18%, rgba(17, 113, 103, 0.24), transparent 28%),
+        linear-gradient(145deg, #050506 0%, #101114 48%, #050506 100%);
+    color: var(--call-text);
+}
+
+.call_pr_remote-video,
+.call_pr_remote-fallback {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.call_pr_remote-video {
+    z-index: 0;
+    object-fit: cover;
+    background: #000;
+}
+
+.call_pr_remote-fallback {
+    z-index: 1;
+    background:
+        linear-gradient(180deg, rgba(0, 0, 0, 0.35), transparent 28%),
+        linear-gradient(0deg, rgba(0, 0, 0, 0.58), transparent 38%);
+    pointer-events: none;
+}
+
+.call_pr_topbar {
+    position: fixed;
+    top: 18px;
+    left: 22px;
+    right: 22px;
+    z-index: 6;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    pointer-events: none;
+}
+
+.call_pr_peer {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    max-width: min(520px, calc(100vw - 44px));
+    padding: 10px 14px 10px 10px;
+    border: 1px solid var(--call-border);
+    border-radius: 999px;
+    background: var(--call-surface);
+    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.32);
+    backdrop-filter: blur(18px);
+}
+
+.call_pr_peer-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.12);
+    flex: 0 0 auto;
+}
+
+.call_pr_peer-avatar img,
+.call_pr_avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.call_pr_peer-avatar i {
+    font-size: 22px;
+}
+
+.call_pr_peer-meta {
+    min-width: 0;
+    display: grid;
+    gap: 2px;
+}
+
+.call_pr_peer-meta strong {
+    max-width: 360px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 15px;
+    line-height: 1.25;
+}
+
+.call_pr_peer-meta span {
+    max-width: 380px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--call-muted);
+    font-size: 12px;
+    line-height: 1.25;
+}
+
+.call_pr_stage {
+    position: fixed;
+    inset: 0;
+    z-index: 3;
+    display: grid;
+    place-items: center;
+    padding: 96px 24px 150px;
+    pointer-events: none;
+}
+
+.call_pr_center-card {
+    width: min(320px, calc(100vw - 48px));
+    min-height: 238px;
+    padding: 24px 22px;
+    border-radius: 8px;
+    border: 1px solid var(--call-border);
+    background: rgba(12, 12, 14, 0.46);
+    box-shadow: 0 18px 70px rgba(0, 0, 0, 0.38);
+    backdrop-filter: blur(16px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    text-align: center;
+}
+
+.call_pr_modal[data-call-state="connected"] .call_pr_center-card {
+    opacity: 0;
+    transform: translateY(8px);
+    pointer-events: none;
+    transition: opacity 0.24s ease, transform 0.24s ease;
+}
+
+.call_pr_avatar {
+    width: 112px;
+    height: 112px;
+    border-radius: 999px;
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.42);
+}
+
+.call_pr_avatar i {
+    font-size: 50px;
+    color: rgba(255, 255, 255, 0.82);
+}
+
+.call_pr_name {
+    max-width: 100%;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+}
+
+.call_pr_status {
+    color: var(--call-muted);
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.call_pr_signal {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 18px;
+}
+
+.call_pr_signal span {
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.76);
+    animation: callPulse 1s infinite ease-in-out;
+}
+
+.call_pr_signal span:nth-child(2) {
+    animation-delay: 0.15s;
+}
+
+.call_pr_signal span:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+@keyframes callPulse {
+    0%, 80%, 100% {
+        transform: translateY(0);
+        opacity: 0.36;
+    }
+    40% {
+        transform: translateY(-5px);
+        opacity: 1;
+    }
+}
+
+.call_pr_local-wrap {
+    position: fixed;
+    right: 24px;
+    bottom: 124px;
+    z-index: 5;
+    width: min(280px, 26vw);
+    aspect-ratio: 16 / 9;
+    min-width: 190px;
+    max-width: 320px;
+    min-height: 108px;
+    overflow: hidden;
+    border-radius: 8px;
+    border: 1px solid var(--call-border);
+    background: #111216;
+    box-shadow: 0 18px 54px rgba(0, 0, 0, 0.42);
+}
+
+.call_pr_modal--audio .call_pr_local-wrap {
+    display: none;
+}
+
+.call_pr_local-video,
+.call_pr_local-empty {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.call_pr_local-video {
+    z-index: 2;
+    object-fit: cover;
+}
+
+.call_pr_local-empty {
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    gap: 6px;
+    color: var(--call-muted);
+    background: #111216;
+    font-size: 12px;
+}
+
+.call_pr_local-empty i {
+    font-size: 22px;
+}
+
+.call_pr_local-label {
+    position: absolute;
+    left: 10px;
+    bottom: 9px;
+    z-index: 3;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.46);
+    color: #fff;
+    font-size: 12px;
+}
+
+.call_pr_controls {
+    position: fixed;
+    left: 50%;
+    bottom: 30px;
+    z-index: 8;
+    transform: translateX(-50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 12px;
+    border: 1px solid var(--call-border);
+    border-radius: 999px;
+    background: rgba(11, 11, 13, 0.7);
+    box-shadow: 0 18px 54px rgba(0, 0, 0, 0.34);
+    backdrop-filter: blur(18px);
+}
+
+.call_pr_btn {
+    width: 64px;
+    height: 64px;
+    border: 0;
+    border-radius: 999px;
+    display: grid;
+    place-items: center;
+    grid-template-rows: 1fr auto;
+    gap: 2px;
+    padding: 8px 4px 7px;
+    color: #fff;
+    background: var(--call-control);
+    cursor: pointer;
+    box-shadow: none;
+    transition: transform 0.14s ease, background 0.14s ease, opacity 0.14s ease;
+}
+
+.call_pr_btn:hover {
+    background: rgba(58, 59, 65, 0.98);
+}
+
+.call_pr_btn:active {
+    transform: scale(0.96);
+}
+
+.call_pr_btn i {
+    font-size: 22px;
+    line-height: 1;
+}
+
+.call_pr_btn span {
+    font-size: 10px;
+    line-height: 1;
+    color: rgba(255, 255, 255, 0.74);
+}
+
+.call_pr_btn[data-on="0"] {
+    background: rgba(98, 100, 108, 0.78);
+    opacity: 1;
+}
+
+.call_pr_btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.48;
+}
+
+.call_pr_btn.call_pr_end {
+    background: var(--call-danger);
+}
+
+.call_pr_btn.call_pr_end:hover {
+    background: #d91f3d;
+}
+
+.vdcall_consumer_call-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 100001;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: rgba(8, 10, 14, 0.54);
+    backdrop-filter: blur(12px);
+}
+
+.vdcall_consumer_call-card {
+    position: relative;
+    width: min(360px, calc(100vw - 48px));
+    min-height: 430px;
+    padding: 30px 28px 26px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(246, 248, 252, 0.96));
+    color: #111217;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    animation: appear 0.18s cubic-bezier(0.08, 0.52, 0.52, 1);
+}
+
+.vdcall_consumer_close-btn {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 34px;
+    height: 34px;
+    border: 0;
+    border-radius: 999px;
+    display: grid;
+    place-items: center;
+    background: #eef0f4;
+    color: #4c5058;
+    cursor: pointer;
+}
+
+.vdcall_consumer_close-btn:hover {
+    background: #e3e6eb;
+}
+
+.vdcall_consumer_pulse {
+    position: absolute;
+    top: 92px;
+    width: 150px;
+    height: 150px;
+    border-radius: 999px;
+    background: rgba(24, 119, 242, 0.1);
+    animation: incomingPulse 1.6s infinite ease-out;
+}
+
+@keyframes incomingPulse {
+    from {
+        transform: scale(0.72);
+        opacity: 0.82;
+    }
+    to {
+        transform: scale(1.3);
+        opacity: 0;
+    }
+}
+
+.vdcall_consumer_avatar {
+    position: relative;
+    z-index: 1;
+    width: 104px;
+    height: 104px;
+    border-radius: 999px;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    background: #e4e6eb;
+    border: 4px solid #fff;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.14);
+}
+
+.vdcall_consumer_avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.vdcall_consumer_avatar i {
+    font-size: 44px;
+    color: #72767f;
+}
+
+.vdcall_consumer_incoming-label {
+    margin-top: 10px;
+    color: #60646d;
+    font-size: 14px;
+}
+
+.vdcall_consumer_caller-name {
+    max-width: 100%;
+    color: #111217;
+    font-size: 24px;
+    font-weight: 750;
+    line-height: 1.2;
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+
+.vdcall_consumer_encrypted {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 2px;
+    color: #656a73;
+    font-size: 13px;
+}
+
+.vdcall_consumer_actions {
+    display: flex;
+    justify-content: center;
+    gap: 46px;
+    width: 100%;
+    margin-top: 26px;
+}
+
+.vdcall_consumer_action-btn {
+    border: 0;
+    background: transparent;
+    color: #4d515a;
+    cursor: pointer;
+    display: grid;
+    gap: 8px;
+    justify-items: center;
+}
+
+.vdcall_consumer_action-circle {
+    width: 62px;
+    height: 62px;
+    border-radius: 999px;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+    transition: transform 0.14s ease, filter 0.14s ease;
+}
+
+.vdcall_consumer_action-btn:hover .vdcall_consumer_action-circle {
+    transform: translateY(-1px);
+    filter: brightness(1.04);
+}
+
+.vdcall_consumer_action-circle i {
+    font-size: 25px;
+}
+
+.vdcall_consumer_decline {
+    background: #f02849;
+}
+
+.vdcall_consumer_accept {
+    background: #24a148;
+}
+
+.vdcall_consumer_action-label {
+    color: #4d515a;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+@media (max-width: 700px) {
+    .call_pr_topbar {
+        top: 12px;
+        left: 12px;
+        right: 12px;
+    }
+
+    .call_pr_stage {
+        padding: 86px 16px 150px;
+    }
+
+    .call_pr_center-card {
+        width: min(300px, calc(100vw - 32px));
+        min-height: 220px;
+    }
+
+    .call_pr_local-wrap {
+        right: 12px;
+        bottom: 120px;
+        width: 42vw;
+        min-width: 136px;
+        min-height: 78px;
+    }
+
+    .call_pr_controls {
+        bottom: 22px;
+        gap: 10px;
+        padding: 10px;
+    }
+
+    .call_pr_btn {
+        width: 58px;
+        height: 58px;
+    }
+}
 
