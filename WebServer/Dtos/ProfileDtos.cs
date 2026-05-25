@@ -74,7 +74,13 @@ namespace WebServer.Dtos
         public int AccountId { get; set; }
 
         [JsonPropertyName("content")]
-        public string Content { get; set; } = "";
+        public string? Content { get; set; }
+
+        [JsonPropertyName("mediaUrl")]
+        public string? MediaUrl { get; set; }
+
+        [JsonPropertyName("mediaType")]
+        public string? MediaType { get; set; }
     }
 
     public sealed class ProfilePostDto

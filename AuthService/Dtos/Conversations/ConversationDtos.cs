@@ -11,15 +11,63 @@ namespace AuthService.Dtos.Conversations
         public int ConversationId { get; set; }
         public bool IsGroup { get; set; }
         public string? Title { get; set; }
+        public string? AvatarUrl { get; set; }
         public DateTime? CreatedAt { get; set; }
     }
     public class ThreadDto
     {
         public int ConversationId { get; set; }
+        public int? OtherAccountId { get; set; }
+        public bool IsGroup { get; set; }
+        public bool IsOwner { get; set; }
         public string Name { get; set; } = "";
         public string AvatarUrl { get; set; } = "";
         public string Snippet { get; set; } = "";
         public DateTime? LastMessageAt { get; set; }
+    }
+
+    public class CreateGroupConversationRequest
+    {
+        public int OwnerId { get; set; }
+        public string Title { get; set; } = "";
+        public List<int> MemberIds { get; set; } = new();
+    }
+
+    public class JoinGroupRequest
+    {
+        public int AccountId { get; set; }
+    }
+
+    public class RemoveGroupMemberRequest
+    {
+        public int OwnerId { get; set; }
+        public int MemberId { get; set; }
+    }
+
+    public class UpdateGroupRequest
+    {
+        public int OwnerId { get; set; }
+        public string? Title { get; set; }
+        public string? AvatarUrl { get; set; }
+    }
+
+    public class GroupMemberDto
+    {
+        public int AccountId { get; set; }
+        public string AccountName { get; set; } = "";
+        public string Email { get; set; } = "";
+        public string? PhotoPath { get; set; }
+        public string Role { get; set; } = "member";
+        public DateTime? JoinedAt { get; set; }
+    }
+
+    public class GroupInfoDto
+    {
+        public int ConversationId { get; set; }
+        public string Title { get; set; } = "";
+        public string AvatarUrl { get; set; } = "";
+        public bool IsOwner { get; set; }
+        public List<GroupMemberDto> Members { get; set; } = new();
     }
     public class MessageDto
     {

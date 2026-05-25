@@ -35,9 +35,21 @@ namespace WebServer.Controllers
 
         // Render cái form modal (HTML)
         [HttpGet("/chat/search_view")]
-        public IActionResult SearchView()
+        public async Task<IActionResult> SearchView()
         {
-            return PartialView("Partials/_FormFriends");
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(userIdStr))
+                return PartialView("Partials/_FormFriends", new List<ConversationThreadDto>());
+
+            try
+            {
+                var threads = await _conversationService.GetThreadsAsync(int.Parse(userIdStr));
+                return PartialView("Partials/_FormFriends", threads);
+            }
+            catch
+            {
+                return PartialView("Partials/_FormFriends", new List<ConversationThreadDto>());
+            }
         }
 
         [HttpGet("/chat/personal")]
@@ -50,11 +62,13 @@ namespace WebServer.Controllers
         [HttpGet("/chat/search_user")]
         public async Task<IActionResult> SearchUser([FromQuery] string email, [FromQuery] int limit = 20)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var currentUserId))
+                return Content("<div class='form_friends__empty'>Bạn chưa đăng nhập.</div>", "text/html");
+
             try
             {
                 var user = await _userService.SearchUsersByEmailAsync(email, limit);
-                if (user.AccountId == int.Parse(userId))
+                if (user.AccountId == currentUserId)
                 {
                     return Content("<div class='form_friends__empty'>Đây là tài khoản của bạn!</div>", "text/html");
                 }
@@ -70,6 +84,167 @@ namespace WebServer.Controllers
                 return Content("<div class='form_friends__empty'>Có lỗi xảy ra khi tìm kiếm.</div>", "text/html");
             }
         }
+
+        [HttpGet("/chat/users/search")]
+        public async Task<IActionResult> SearchUserJson([FromQuery] string email, [FromQuery] int limit = 20)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(userId))
+                return Unauthorized(new { message = "Not logged in." });
+
+            try
+            {
+                var user = await _userService.SearchUsersByEmailAsync(email, limit);
+                if (user.AccountId == 0)
+                    return NotFound(new { message = "Không tìm thấy người dùng nào." });
+                if (user.AccountId == int.Parse(userId))
+                    return BadRequest(new { message = "Đây là tài khoản của bạn." });
+
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("/chat/conversations")]
+        public async Task<IActionResult> CreateConversation([FromBody] CreateDirectChatRequest req)
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(userIdStr))
+                return Unauthorized(new { message = "Not logged in." });
+
+            if (req == null || req.FriendId <= 0)
+                return BadRequest(new { message = "Vui lòng chọn người muốn nhắn tin." });
+
+            try
+            {
+                var conversation = await _conversationService.CreateOrGetOneToOneAsync(int.Parse(userIdStr), req.FriendId);
+                return Ok(conversation);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("/chat/groups")]
+        public async Task<IActionResult> CreateGroup([FromBody] CreateGroupChatRequest req)
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(userIdStr))
+                return Unauthorized(new { message = "Not logged in." });
+
+            if (req == null)
+                return BadRequest(new { message = "Body is required." });
+
+            try
+            {
+                if (!int.TryParse(userIdStr, out var ownerId) || ownerId <= 0)
+                    return Unauthorized(new { message = "Not logged in." });
+
+                var memberIds = (req.MemberIds ?? new List<int>())
+                    .Where(id => id > 0 && id != ownerId)
+                    .Distinct()
+                    .ToList();
+
+                if (memberIds.Count == 0)
+                    return BadRequest(new { message = "Vui lòng chọn ít nhất một thành viên khác bạn." });
+
+                var group = await _conversationService.CreateGroupAsync(ownerId, req.Title, memberIds);
+                return Ok(group);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("/chat/groups/{conversationId:int}")]
+        public async Task<IActionResult> GroupInfoView(int conversationId)
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(userIdStr))
+                return Content("<div class='form_friends__empty'>Bạn chưa đăng nhập.</div>", "text/html");
+
+            try
+            {
+                var meId = int.Parse(userIdStr);
+                var group = await _conversationService.GetGroupInfoAsync(conversationId, meId);
+                ViewBag.InviteUrl = $"{Request.Scheme}://{Request.Host}/chat/groups/{conversationId}/join";
+                return PartialView("Partials/_GroupInfo", group);
+            }
+            catch
+            {
+                Response.StatusCode = 500;
+                return Content("<div class='form_friends__empty'>Không tải được thông tin nhóm.</div>", "text/html");
+            }
+        }
+
+        [HttpGet("/chat/groups/{conversationId:int}/join")]
+        public async Task<IActionResult> JoinGroupByLink(int conversationId)
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(userIdStr))
+                return RedirectToAction("Login", "Auth");
+
+            await _conversationService.JoinGroupAsync(conversationId, int.Parse(userIdStr));
+            return RedirectToAction(nameof(Main));
+        }
+
+        [HttpPost("/chat/groups/{conversationId:int}/settings")]
+        [RequestSizeLimit(10_000_000)]
+        public async Task<IActionResult> UpdateGroupSettings(int conversationId, [FromForm] UpdateGroupSettingsRequest req)
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(userIdStr))
+                return Unauthorized(new { message = "Not logged in." });
+
+            if (req == null)
+                return BadRequest(new { message = "Body is required." });
+
+            try
+            {
+                var ownerId = int.Parse(userIdStr);
+                string? avatarUrl = null;
+
+                if (req.Avatar != null && req.Avatar.Length > 0)
+                    avatarUrl = await SaveGroupAvatarAsync(req.Avatar);
+
+                var title = req.Title?.Trim();
+                var updated = await _conversationService.UpdateGroupAsync(
+                    conversationId,
+                    ownerId,
+                    title,
+                    avatarUrl);
+
+                return Ok(updated);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("/chat/groups/{conversationId:int}/members/{memberId:int}/remove")]
+        public async Task<IActionResult> RemoveGroupMember(int conversationId, int memberId)
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(userIdStr))
+                return Unauthorized(new { message = "Not logged in." });
+
+            try
+            {
+                await _conversationService.RemoveGroupMemberAsync(conversationId, int.Parse(userIdStr), memberId);
+                return Ok(new { ok = true });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         [HttpGet("/chat/threads")]
         public async Task<IActionResult> ThreadsView([FromServices] IConversationService conversationService)
         {
@@ -353,6 +528,46 @@ namespace WebServer.Controllers
 
             return PartialView("Partials/_CallPopup", vm);
         }
+
+        private static async Task<string> SaveGroupAvatarAsync(IFormFile file)
+        {
+            var allowedExts = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ".jpg", ".jpeg", ".png", ".webp", ".gif"
+            };
+
+            var ext = Path.GetExtension(file.FileName);
+            if (!allowedExts.Contains(ext))
+                throw new Exception("Chỉ hỗ trợ ảnh .jpg, .jpeg, .png, .webp, .gif.");
+
+            var uploadsRoot = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "groups");
+            Directory.CreateDirectory(uploadsRoot);
+
+            var fileName = $"{Guid.NewGuid():N}{ext}";
+            var fullPath = Path.Combine(uploadsRoot, fileName);
+
+            await using var stream = new FileStream(fullPath, FileMode.Create);
+            await file.CopyToAsync(stream);
+
+            return $"/uploads/groups/{fileName}";
+        }
+    }
+
+    public sealed class CreateGroupChatRequest
+    {
+        public string Title { get; set; } = "";
+        public List<int> MemberIds { get; set; } = new();
+    }
+
+    public sealed class CreateDirectChatRequest
+    {
+        public int FriendId { get; set; }
+    }
+
+    public sealed class UpdateGroupSettingsRequest
+    {
+        public string? Title { get; set; }
+        public IFormFile? Avatar { get; set; }
     }
 
 }

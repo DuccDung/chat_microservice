@@ -99,6 +99,10 @@ public partial class SocialNetworkContext : DbContext
             entity.Property(e => e.Title)
                 .HasMaxLength(255)
                 .HasColumnName("title");
+            entity.Property(e => e.AvatarUrl)
+                .HasMaxLength(255)
+                .IsUnicode(false)
+                .HasColumnName("avatar_url");
         });
 
         modelBuilder.Entity<ConversationMember>(entity =>

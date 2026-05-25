@@ -10,6 +10,9 @@
 
     var avatar = AssetOrDefault(Model.User.PhotoPath, Model.DefaultAvatarPath);
     var cover = AssetOrDefault(Model.User.PhotoBackground, Model.DefaultCoverPath);
+    var ownPosts = Model.Posts
+        .Where(x => x.AccountId == Model.User.AccountId)
+        .ToList();
     var genderText = Model.User.Gender switch
     {
         1 => "Nam",
@@ -26,6 +29,7 @@
 }
 
 <main class="profile-page"
+      data-current-account-id="@Model.User.AccountId"
       data-default-avatar="@Model.DefaultAvatarPath"
       data-default-cover="@Model.DefaultCoverPath">
     <section class="profile-shell">
@@ -99,7 +103,7 @@
                     <div class="profile-photos">
                         <img src="@avatar" alt="Ảnh đại diện" />
                         <img src="@cover" alt="Ảnh bìa" />
-                        @foreach (var media in Model.Posts.SelectMany(x => x.Media).Take(4))
+                        @foreach (var media in ownPosts.SelectMany(x => x.Media).Take(4))
                         {
                             <img src="@media.MediaUrl" alt="Ảnh bài viết" />
                         }
@@ -127,7 +131,7 @@
                 </section>
 
                 <div class="post-list">
-                    @if (!Model.Posts.Any())
+                    @if (!ownPosts.Any())
                     {
                         <section class="profile-card profile-empty-state">
                             <h3>Chưa có bài viết</h3>
@@ -135,11 +139,11 @@
                         </section>
                     }
 
-                    @foreach (var post in Model.Posts)
+                    @foreach (var post in ownPosts)
                     {
                         var postAvatar = AssetOrDefault(post.AuthorPhotoPath, Model.DefaultAvatarPath);
                         var media = post.Media.FirstOrDefault();
-                        <article class="profile-card profile-post" data-post-id="@post.PostId">
+                        <article class="profile-card profile-post" data-post-id="@post.PostId" data-owner-id="@post.AccountId">
                             <div class="profile-post__header">
                                 <img src="@postAvatar" alt="@post.AuthorName" />
                                 <div>

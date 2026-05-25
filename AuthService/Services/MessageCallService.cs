@@ -9,7 +9,9 @@ namespace AuthService.Services;
 public sealed class MessageCallService : IMessageCallService
 {
     private const string DefaultAvatarUrl = "/assets/images/avatar-default.png";
-    private const string DefaultGroupAvatarUrl = "/assets/images/group-default.png";
+    private const string DefaultGroupAvatarUrl = "/assets/icons/group-default.svg";
+    private const string GroupOwnerRole = "owner";
+    private const string GroupMemberRole = "member";
 
     private readonly SocialNetworkContext _context;
 
@@ -90,6 +92,86 @@ public sealed class MessageCallService : IMessageCallService
         return MapConversation(conversation);
     }
 
+    public async Task<ConversationDto> CreateGroupAsync(CreateGroupConversationRequest req, CancellationToken ct = default)
+    {
+        if (req == null)
+            throw new ServiceException(StatusCodes.Status400BadRequest, "Body is required.");
+        if (req.OwnerId <= 0)
+            throw new ServiceException(StatusCodes.Status400BadRequest, "OwnerId is required.");
+
+        var requestedTitle = req.Title?.Trim();
+
+        var memberIds = (req.MemberIds ?? new List<int>())
+            .Where(id => id > 0 && id != req.OwnerId)
+            .Distinct()
+            .ToList();
+
+        if (memberIds.Count == 0)
+            throw new ServiceException(StatusCodes.Status400BadRequest, "At least one group member is required.");
+
+        var allIds = memberIds.Append(req.OwnerId).Distinct().ToList();
+        var existingUsers = await _context.Accounts
+            .Where(a => allIds.Contains(a.AccountId))
+            .Select(a => new { a.AccountId, a.AccountName })
+            .ToListAsync(ct);
+
+        if (existingUsers.Count != allIds.Count)
+            throw new ServiceException(StatusCodes.Status404NotFound, "One or more users not found.");
+
+        var title = requestedTitle;
+        if (string.IsNullOrWhiteSpace(title))
+        {
+            var memberNames = existingUsers
+                .Where(a => memberIds.Contains(a.AccountId))
+                .OrderBy(a => memberIds.IndexOf(a.AccountId))
+                .Select(a => string.IsNullOrWhiteSpace(a.AccountName) ? "Người dùng" : a.AccountName)
+                .Take(3)
+                .ToList();
+
+            title = memberNames.Count == 0 ? "Nhóm chat" : string.Join(", ", memberNames);
+        }
+
+        await using var tx = await _context.Database.BeginTransactionAsync(ct);
+
+        var now = DateTime.UtcNow;
+        var conversation = new Conversation
+        {
+            IsGroup = true,
+            Title = title,
+            CreatedAt = now
+        };
+
+        _context.Conversations.Add(conversation);
+        await _context.SaveChangesAsync(ct);
+
+        var members = new List<ConversationMember>
+        {
+            new()
+            {
+                ConversationId = conversation.ConversationId,
+                AccountId = req.OwnerId,
+                JoinedAt = now,
+                CreatedAt = now,
+                Title = GroupOwnerRole
+            }
+        };
+
+        members.AddRange(memberIds.Select(memberId => new ConversationMember
+        {
+            ConversationId = conversation.ConversationId,
+            AccountId = memberId,
+            JoinedAt = now,
+            CreatedAt = now,
+            Title = GroupMemberRole
+        }));
+
+        _context.ConversationMembers.AddRange(members);
+        await _context.SaveChangesAsync(ct);
+        await tx.CommitAsync(ct);
+
+        return MapConversation(conversation);
+    }
+
     public async Task<List<ThreadDto>> GetThreadsAsync(int accountId, CancellationToken ct = default)
     {
         if (accountId <= 0)
@@ -113,6 +195,10 @@ public sealed class MessageCallService : IMessageCallService
                 OtherMember = c!.ConversationMembers
                     .Where(x => x.AccountId != accountId)
                     .Select(x => x.Account)
+                    .FirstOrDefault(),
+                MyRole = c!.ConversationMembers
+                    .Where(x => x.AccountId == accountId)
+                    .Select(x => x.Title)
                     .FirstOrDefault()
             })
             .OrderByDescending(x => x.LastMessage == null ? x.Conversation.CreatedAt : x.LastMessage.CreatedAt)
@@ -126,7 +212,7 @@ public sealed class MessageCallService : IMessageCallService
                 : x.OtherMember?.AccountName ?? "Người dùng";
 
             var avatar = conversation.IsGroup
-                ? DefaultGroupAvatarUrl
+                ? string.IsNullOrWhiteSpace(conversation.AvatarUrl) ? DefaultGroupAvatarUrl : conversation.AvatarUrl!
                 : string.IsNullOrWhiteSpace(x.OtherMember?.PhotoPath) ? DefaultAvatarUrl : x.OtherMember!.PhotoPath!;
 
             var snippet = "Chưa có tin nhắn";
@@ -143,12 +229,167 @@ public sealed class MessageCallService : IMessageCallService
             return new ThreadDto
             {
                 ConversationId = conversation.ConversationId,
+                OtherAccountId = conversation.IsGroup ? null : x.OtherMember?.AccountId,
+                IsGroup = conversation.IsGroup,
+                IsOwner = conversation.IsGroup && x.MyRole == GroupOwnerRole,
                 Name = name,
                 AvatarUrl = avatar,
                 Snippet = snippet,
                 LastMessageAt = lastAt
             };
         }).ToList();
+    }
+
+    public async Task<GroupInfoDto> GetGroupInfoAsync(int conversationId, int meId, CancellationToken ct = default)
+    {
+        if (conversationId <= 0)
+            throw new ServiceException(StatusCodes.Status400BadRequest, "conversationId is required.");
+        if (meId <= 0)
+            throw new ServiceException(StatusCodes.Status400BadRequest, "meId is required.");
+
+        var conversation = await _context.Conversations
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c => c.ConversationId == conversationId && c.IsGroup, ct);
+
+        if (conversation == null)
+            throw new ServiceException(StatusCodes.Status404NotFound, "Group not found.");
+
+        await EnsureMemberAsync(conversationId, meId, ct);
+
+        var members = await _context.ConversationMembers
+            .Where(cm => cm.ConversationId == conversationId)
+            .Include(cm => cm.Account)
+            .AsNoTracking()
+            .OrderBy(cm => cm.Title == GroupOwnerRole ? 0 : 1)
+            .ThenBy(cm => cm.Account.AccountName)
+            .Select(cm => new GroupMemberDto
+            {
+                AccountId = cm.AccountId,
+                AccountName = cm.Account.AccountName,
+                Email = cm.Account.Email,
+                PhotoPath = cm.Account.PhotoPath,
+                Role = cm.Title == GroupOwnerRole ? GroupOwnerRole : GroupMemberRole,
+                JoinedAt = cm.JoinedAt
+            })
+            .ToListAsync(ct);
+
+        return new GroupInfoDto
+        {
+            ConversationId = conversation.ConversationId,
+            Title = string.IsNullOrWhiteSpace(conversation.Title) ? "Nhóm chat" : conversation.Title!,
+            AvatarUrl = string.IsNullOrWhiteSpace(conversation.AvatarUrl) ? DefaultGroupAvatarUrl : conversation.AvatarUrl!,
+            IsOwner = members.Any(x => x.AccountId == meId && x.Role == GroupOwnerRole),
+            Members = members
+        };
+    }
+
+    public async Task<ConversationDto> JoinGroupAsync(int conversationId, int accountId, CancellationToken ct = default)
+    {
+        if (conversationId <= 0)
+            throw new ServiceException(StatusCodes.Status400BadRequest, "conversationId is required.");
+        if (accountId <= 0)
+            throw new ServiceException(StatusCodes.Status400BadRequest, "accountId is required.");
+
+        var conversation = await _context.Conversations
+            .FirstOrDefaultAsync(c => c.ConversationId == conversationId && c.IsGroup, ct);
+
+        if (conversation == null)
+            throw new ServiceException(StatusCodes.Status404NotFound, "Group not found.");
+
+        var userExists = await _context.Accounts.AnyAsync(a => a.AccountId == accountId, ct);
+        if (!userExists)
+            throw new ServiceException(StatusCodes.Status404NotFound, "User not found.");
+
+        var alreadyMember = await _context.ConversationMembers
+            .AnyAsync(cm => cm.ConversationId == conversationId && cm.AccountId == accountId, ct);
+
+        if (!alreadyMember)
+        {
+            var now = DateTime.UtcNow;
+            _context.ConversationMembers.Add(new ConversationMember
+            {
+                ConversationId = conversationId,
+                AccountId = accountId,
+                JoinedAt = now,
+                CreatedAt = now,
+                Title = GroupMemberRole
+            });
+
+            await _context.SaveChangesAsync(ct);
+        }
+
+        return MapConversation(conversation);
+    }
+
+    public async Task<GroupInfoDto> UpdateGroupAsync(int conversationId, UpdateGroupRequest req, CancellationToken ct = default)
+    {
+        if (conversationId <= 0)
+            throw new ServiceException(StatusCodes.Status400BadRequest, "conversationId is required.");
+        if (req == null)
+            throw new ServiceException(StatusCodes.Status400BadRequest, "Body is required.");
+        if (req.OwnerId <= 0)
+            throw new ServiceException(StatusCodes.Status400BadRequest, "OwnerId is required.");
+
+        var conversation = await _context.Conversations
+            .FirstOrDefaultAsync(c => c.ConversationId == conversationId && c.IsGroup, ct);
+
+        if (conversation == null)
+            throw new ServiceException(StatusCodes.Status404NotFound, "Group not found.");
+
+        await EnsureGroupOwnerAsync(conversationId, req.OwnerId, ct);
+
+        if (req.Title != null)
+        {
+            var title = req.Title.Trim();
+            if (string.IsNullOrWhiteSpace(title))
+                throw new ServiceException(StatusCodes.Status400BadRequest, "Group title is required.");
+
+            conversation.Title = title.Length > 255 ? title[..255] : title;
+        }
+
+        if (req.AvatarUrl != null)
+        {
+            var avatarUrl = req.AvatarUrl.Trim();
+            conversation.AvatarUrl = string.IsNullOrWhiteSpace(avatarUrl)
+                ? null
+                : avatarUrl.Length > 255 ? avatarUrl[..255] : avatarUrl;
+        }
+
+        await _context.SaveChangesAsync(ct);
+        return await GetGroupInfoAsync(conversationId, req.OwnerId, ct);
+    }
+
+    public async Task RemoveGroupMemberAsync(int conversationId, RemoveGroupMemberRequest req, CancellationToken ct = default)
+    {
+        if (conversationId <= 0)
+            throw new ServiceException(StatusCodes.Status400BadRequest, "conversationId is required.");
+        if (req == null)
+            throw new ServiceException(StatusCodes.Status400BadRequest, "Body is required.");
+        if (req.OwnerId <= 0 || req.MemberId <= 0)
+            throw new ServiceException(StatusCodes.Status400BadRequest, "OwnerId and MemberId are required.");
+        if (req.OwnerId == req.MemberId)
+            throw new ServiceException(StatusCodes.Status400BadRequest, "Group owner cannot remove themselves.");
+
+        var conversation = await _context.Conversations
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c => c.ConversationId == conversationId && c.IsGroup, ct);
+
+        if (conversation == null)
+            throw new ServiceException(StatusCodes.Status404NotFound, "Group not found.");
+
+        await EnsureGroupOwnerAsync(conversationId, req.OwnerId, ct);
+
+        var member = await _context.ConversationMembers
+            .FirstOrDefaultAsync(cm =>
+                cm.ConversationId == conversationId &&
+                cm.AccountId == req.MemberId &&
+                cm.Title != GroupOwnerRole, ct);
+
+        if (member == null)
+            throw new ServiceException(StatusCodes.Status404NotFound, "Member not found.");
+
+        _context.ConversationMembers.Remove(member);
+        await _context.SaveChangesAsync(ct);
     }
 
     public async Task<List<MessageDto>> GetMessagesAsync(
@@ -332,6 +573,19 @@ public sealed class MessageCallService : IMessageCallService
             throw new ServiceException(StatusCodes.Status403Forbidden, "User is not a member of this conversation.");
     }
 
+    private async Task EnsureGroupOwnerAsync(int conversationId, int accountId, CancellationToken ct)
+    {
+        var isOwner = await _context.ConversationMembers
+            .AsNoTracking()
+            .AnyAsync(cm =>
+                cm.ConversationId == conversationId &&
+                cm.AccountId == accountId &&
+                cm.Title == GroupOwnerRole, ct);
+
+        if (!isOwner)
+            throw new ServiceException(StatusCodes.Status403Forbidden, "Only group owner can update this group.");
+    }
+
     private static ConversationDto MapConversation(Conversation conversation)
     {
         return new ConversationDto
@@ -339,6 +593,7 @@ public sealed class MessageCallService : IMessageCallService
             ConversationId = conversation.ConversationId,
             IsGroup = conversation.IsGroup,
             Title = conversation.Title,
+            AvatarUrl = conversation.AvatarUrl,
             CreatedAt = conversation.CreatedAt
         };
     }
@@ -365,4 +620,3 @@ public sealed class MessageCallService : IMessageCallService
         };
     }
 }
-

@@ -17,6 +17,95 @@
   },
   {
     "ContainingType": "AuthService.Controllers.ConversationsController",
+    "Method": "GetGroupInfo",
+    "RelativePath": "api/conversations/{conversationId}/group",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "conversationId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "me",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "AuthService.Controllers.ConversationsController",
+    "Method": "UpdateGroup",
+    "RelativePath": "api/conversations/{conversationId}/group",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "conversationId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "req",
+        "Type": "AuthService.Dtos.Conversations.UpdateGroupRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "AuthService.Controllers.ConversationsController",
+    "Method": "JoinGroup",
+    "RelativePath": "api/conversations/{conversationId}/group/join",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "conversationId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "req",
+        "Type": "AuthService.Dtos.Conversations.JoinGroupRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "AuthService.Controllers.ConversationsController",
+    "Method": "RemoveGroupMember",
+    "RelativePath": "api/conversations/{conversationId}/group/members/{memberId}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "conversationId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "memberId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "ownerId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "AuthService.Controllers.ConversationsController",
     "Method": "MarkRead",
     "RelativePath": "api/conversations/{conversationId}/mark-read",
     "HttpMethod": "POST",
@@ -147,6 +236,22 @@
         "Name": "meId",
         "Type": "System.Int32",
         "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "AuthService.Controllers.ConversationsController",
+    "Method": "CreateGroup",
+    "RelativePath": "api/conversations/groups",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "req",
+        "Type": "AuthService.Dtos.Conversations.CreateGroupConversationRequest",
+        "IsRequired": true
       }
     ],
     "ReturnTypes": []

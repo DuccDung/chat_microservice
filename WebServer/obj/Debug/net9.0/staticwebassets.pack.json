@@ -41,6 +41,10 @@
       "PackagePath": "staticwebassets\\assets\\icons\\grid.svg"
     },
     {
+      "Id": "D:\\laptrinhweb\\code_outsrc\\SystemChatBoxRealtime\\microservice\\SystemChatBoxRealtime\\WebServer\\wwwroot\\assets\\icons\\group-default.svg",
+      "PackagePath": "staticwebassets\\assets\\icons\\group-default.svg"
+    },
+    {
       "Id": "D:\\laptrinhweb\\code_outsrc\\SystemChatBoxRealtime\\microservice\\SystemChatBoxRealtime\\WebServer\\wwwroot\\assets\\icons\\home.svg",
       "PackagePath": "staticwebassets\\assets\\icons\\home.svg"
     },
@@ -391,6 +395,18 @@
     {
       "Id": "D:\\laptrinhweb\\code_outsrc\\SystemChatBoxRealtime\\microservice\\SystemChatBoxRealtime\\WebServer\\wwwroot\\uploads\\chat\\c5de9ea059f348c5aa1f034392534ca9.webp",
       "PackagePath": "staticwebassets\\uploads\\chat\\c5de9ea059f348c5aa1f034392534ca9.webp"
+    },
+    {
+      "Id": "D:\\laptrinhweb\\code_outsrc\\SystemChatBoxRealtime\\microservice\\SystemChatBoxRealtime\\WebServer\\wwwroot\\uploads\\posts\\021f48de1e1344b9ba646f6368d5e2a9.png",
+      "PackagePath": "staticwebassets\\uploads\\posts\\021f48de1e1344b9ba646f6368d5e2a9.png"
+    },
+    {
+      "Id": "D:\\laptrinhweb\\code_outsrc\\SystemChatBoxRealtime\\microservice\\SystemChatBoxRealtime\\WebServer\\wwwroot\\uploads\\profile\\83c750140e8348b49ddfd70590457552.jpg",
+      "PackagePath": "staticwebassets\\uploads\\profile\\83c750140e8348b49ddfd70590457552.jpg"
+    },
+    {
+      "Id": "D:\\laptrinhweb\\code_outsrc\\SystemChatBoxRealtime\\microservice\\SystemChatBoxRealtime\\WebServer\\wwwroot\\uploads\\profile\\edd5f0e59e244ee0810c06c08f60c349.jpg",
+      "PackagePath": "staticwebassets\\uploads\\profile\\edd5f0e59e244ee0810c06c08f60c349.jpg"
     },
     {
       "Id": "D:\\laptrinhweb\\code_outsrc\\SystemChatBoxRealtime\\microservice\\SystemChatBoxRealtime\\WebServer\\wwwroot\\uploads\\voice\\02ed4f8d887b4ff688cc507ff69bde62.webm",

@@ -1820,10 +1820,13 @@ body.light .chat-action-btn {
     position: absolute;
     inset: 0;
     background: rgba(0,0,0,0.45);
+    z-index: 0;
 }
 
 /* chỉ overlay, không khung trắng */
 .app_modal__panel {
+    position: relative;
+    z-index: 1;
     background: transparent;
     box-shadow: none;
     border-radius: 0;
@@ -2167,6 +2170,414 @@ body.light .chat-action-btn {
 
     .chat-image-modern {
         max-height: 320px;
+    }
+}
+
+.form_friends__mode_switch {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 14px;
+    padding: 4px;
+    background: #f3f4f6;
+    border-radius: 10px;
+}
+
+.form_friends__mode {
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: #4b5563;
+    cursor: pointer;
+    font-weight: 700;
+    padding: 9px 10px;
+}
+
+.form_friends__mode.is-active {
+    background: #fff;
+    color: #111827;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.form_friends__group_fields {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.form_friends__text_input {
+    width: 100%;
+    border: 1px solid var(--form_friends-line);
+    border-radius: 10px;
+    font-size: 15px;
+    outline: 0;
+    padding: 11px 12px;
+}
+
+.form_friends__text_input:focus {
+    border-color: var(--form_friends-blue);
+    box-shadow: 0 0 0 3px var(--form_friends-blue-weak);
+}
+
+.form_friends__selected_members {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 36px;
+}
+
+.form_friends__member_chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    max-width: 100%;
+    border: 1px solid #bfdbfe;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    cursor: pointer;
+    font-weight: 700;
+    padding: 7px 10px;
+}
+
+.form_friends__member_chip span:first-child {
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.form_friends__empty--compact {
+    padding: 8px 0;
+    text-align: left;
+}
+
+.form_friends__btn:disabled {
+    cursor: not-allowed;
+    filter: grayscale(0.25);
+    opacity: 0.65;
+}
+
+.group_manage {
+    width: min(560px, calc(100vw - 36px));
+    max-height: min(760px, calc(100vh - 36px));
+    overflow: hidden;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 22px 60px rgba(0, 0, 0, 0.28);
+    color: #111827;
+}
+
+.group_manage__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 18px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.group_manage__title {
+    margin: 0;
+    font-size: 20px;
+    line-height: 1.2;
+    max-width: 420px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.group_manage__subtitle {
+    color: #6b7280;
+    font-size: 13px;
+    margin-top: 4px;
+}
+
+.group_manage__icon_btn {
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: 10px;
+    background: #f3f4f6;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    position: relative;
+}
+
+.group_manage__icon_btn:hover {
+    background: #e5e7eb;
+}
+
+.group_manage__icon_x,
+.group_manage__icon_x::before,
+.group_manage__icon_x::after {
+    display: block;
+    width: 18px;
+    height: 2px;
+    background: #111827;
+    border-radius: 999px;
+}
+
+.group_manage__icon_x {
+    background: transparent;
+    position: relative;
+}
+
+.group_manage__icon_x::before,
+.group_manage__icon_x::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.group_manage__icon_x::before {
+    transform: rotate(45deg);
+}
+
+.group_manage__icon_x::after {
+    transform: rotate(-45deg);
+}
+
+.group_manage__body {
+    max-height: calc(min(760px, calc(100vh - 36px)) - 69px);
+    overflow: auto;
+    padding: 16px 18px 18px;
+}
+
+.group_manage__profile {
+    display: grid;
+    grid-template-columns: 104px minmax(0, 1fr);
+    gap: 16px;
+    align-items: center;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #edf0f3;
+    margin-bottom: 18px;
+}
+
+.group_manage__avatar_edit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.group_manage__group_avatar {
+    width: 88px;
+    height: 88px;
+    border-radius: 999px;
+    object-fit: cover;
+    background: #e5e7eb;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06) inset;
+}
+
+.group_manage__avatar_btn {
+    border: 0;
+    border-radius: 9px;
+    background: #eef2ff;
+    color: #1d4ed8;
+    cursor: pointer;
+    font-weight: 750;
+    padding: 7px 10px;
+}
+
+.group_manage__avatar_btn:hover {
+    background: #dbeafe;
+}
+
+.group_manage__profile_fields {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.group_manage__field_label {
+    color: #6b7280;
+    font-size: 13px;
+    font-weight: 750;
+}
+
+.group_manage__title_input {
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    color: #111827;
+    font-size: 15px;
+    outline: 0;
+    padding: 10px 11px;
+}
+
+.group_manage__title_input:focus {
+    border-color: #1877f2;
+    box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.12);
+}
+
+.group_manage__readonly_title {
+    font-weight: 750;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.group_manage__save {
+    align-self: flex-start;
+    border: 0;
+    border-radius: 10px;
+    background: #1877f2;
+    color: #fff;
+    cursor: pointer;
+    font-weight: 750;
+    padding: 9px 13px;
+}
+
+.group_manage__save:hover {
+    filter: brightness(0.95);
+}
+
+.group_manage__section + .group_manage__section {
+    margin-top: 18px;
+}
+
+.group_manage__section_header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.group_manage__section_header h3 {
+    margin: 0;
+    font-size: 15px;
+}
+
+.group_manage__section_header span {
+    color: #6b7280;
+    font-size: 12px;
+}
+
+.group_manage__invite {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px;
+}
+
+.group_manage__invite input {
+    min-width: 0;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    color: #374151;
+    font-size: 13px;
+    padding: 10px 11px;
+}
+
+.group_manage__copy,
+.group_manage__remove {
+    border: 0;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+    padding: 9px 12px;
+}
+
+.group_manage__copy {
+    background: #1877f2;
+    color: #fff;
+}
+
+.group_manage__members {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.group_manage__member {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border: 1px solid #edf0f3;
+    border-radius: 10px;
+}
+
+.group_manage__avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    object-fit: cover;
+    background: #e5e7eb;
+}
+
+.group_manage__member_meta {
+    min-width: 0;
+}
+
+.group_manage__member_name {
+    font-weight: 750;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.group_manage__member_sub {
+    color: #6b7280;
+    font-size: 13px;
+    margin-top: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.group_manage__role {
+    border-radius: 999px;
+    background: #f3f4f6;
+    color: #4b5563;
+    font-size: 12px;
+    font-weight: 750;
+    padding: 6px 9px;
+    white-space: nowrap;
+}
+
+.group_manage__role--owner {
+    background: #fff7ed;
+    color: #c2410c;
+}
+
+.group_manage__remove {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.group_manage__remove:hover {
+    background: #fecaca;
+}
+
+@media (max-width: 560px) {
+    .group_manage__profile {
+        grid-template-columns: 1fr;
+        justify-items: center;
+    }
+
+    .group_manage__profile_fields {
+        width: 100%;
+    }
+
+    .group_manage__invite {
+        grid-template-columns: 1fr;
+    }
+
+    .group_manage__member {
+        grid-template-columns: 40px minmax(0, 1fr);
+    }
+
+    .group_manage__role,
+    .group_manage__remove {
+        grid-column: 2;
+        justify-self: start;
     }
 }
 .audio-preview {

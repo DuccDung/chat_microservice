@@ -11,6 +11,8 @@ public partial class Conversation
 
     public string? Title { get; set; }
 
+    public string? AvatarUrl { get; set; }
+
     public DateTime? CreatedAt { get; set; }
 
     public virtual ICollection<ConversationMember> ConversationMembers { get; set; } = new List<ConversationMember>();

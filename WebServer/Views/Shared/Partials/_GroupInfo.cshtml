@@ -1,0 +1,113 @@
+@model WebServer.Dtos.GroupInfoDto
+
+@{
+    var group = Model!;
+    var inviteUrl = ViewBag.InviteUrl as string ?? "";
+    var members = group.Members ?? new List<WebServer.Dtos.GroupMemberDto>();
+    var memberCount = members.Count;
+    var defaultAvatar = Url.Content("~/assets/icons/group-default.svg");
+    var groupAvatar = string.IsNullOrWhiteSpace(group.AvatarUrl) ? defaultAvatar : group.AvatarUrl;
+
+    string MemberAvatar(string? path)
+    {
+        return string.IsNullOrWhiteSpace(path)
+            ? Url.Content("~/assets/images/avatar-default.png")
+            : path!;
+    }
+
+    string RoleText(string? role)
+    {
+        return string.Equals(role, "owner", StringComparison.OrdinalIgnoreCase)
+            ? "Trưởng nhóm"
+            : "Thành viên";
+    }
+}
+
+<div class="group_manage"
+     data-conversation-id="@group.ConversationId"
+     data-current-title="@group.Title"
+     data-current-avatar="@groupAvatar">
+    <div class="group_manage__header">
+        <div>
+            <h2 class="group_manage__title">@group.Title</h2>
+            <div class="group_manage__subtitle">@memberCount thành viên</div>
+        </div>
+        <button class="group_manage__icon_btn" type="button" aria-label="Đóng" data-modal-close="true">
+            <span class="group_manage__icon_x" aria-hidden="true"></span>
+        </button>
+    </div>
+
+    <div class="group_manage__body">
+        <section class="group_manage__profile">
+            <div class="group_manage__avatar_edit">
+                <img class="group_manage__group_avatar" src="@groupAvatar" alt="@group.Title" />
+                @if (group.IsOwner)
+                {
+                    <button class="group_manage__avatar_btn" type="button">Đổi ảnh</button>
+                    <input class="group_manage__avatar_input" type="file" accept="image/*" hidden />
+                }
+            </div>
+
+            <div class="group_manage__profile_fields">
+                <label class="group_manage__field_label" for="groupManageTitle">Tên nhóm</label>
+                @if (group.IsOwner)
+                {
+                    <input id="groupManageTitle"
+                           class="group_manage__title_input"
+                           type="text"
+                           value="@group.Title"
+                           maxlength="120" />
+                    <button class="group_manage__save" type="button">Lưu thay đổi</button>
+                }
+                else
+                {
+                    <div class="group_manage__readonly_title">@group.Title</div>
+                }
+            </div>
+        </section>
+
+        <section class="group_manage__section">
+            <div class="group_manage__section_header">
+                <h3>Liên kết tham gia</h3>
+            </div>
+            <div class="group_manage__invite">
+                <input type="text" value="@inviteUrl" readonly aria-label="Liên kết tham gia nhóm" />
+                <button class="group_manage__copy" type="button" data-copy-text="@inviteUrl">Sao chép</button>
+            </div>
+        </section>
+
+        <section class="group_manage__section">
+            <div class="group_manage__section_header">
+                <h3>Thành viên</h3>
+                @if (group.IsOwner)
+                {
+                    <span>Trưởng nhóm có thể xóa thành viên.</span>
+                }
+            </div>
+
+            <div class="group_manage__members">
+                @foreach (var member in members)
+                {
+                    var isOwner = string.Equals(member.Role, "owner", StringComparison.OrdinalIgnoreCase);
+
+                    <div class="group_manage__member" data-member-id="@member.AccountId">
+                        <img class="group_manage__avatar" src="@MemberAvatar(member.PhotoPath)" alt="" />
+                        <div class="group_manage__member_meta">
+                            <div class="group_manage__member_name">@member.AccountName</div>
+                            <div class="group_manage__member_sub">@member.Email</div>
+                        </div>
+                        <span class="group_manage__role @(isOwner ? "group_manage__role--owner" : "")">
+                            @RoleText(member.Role)
+                        </span>
+                        @if (group.IsOwner && !isOwner)
+                        {
+                            <button class="group_manage__remove" type="button" data-member-id="@member.AccountId">
+                                Xóa
+                            </button>
+                        }
+                    </div>
+                }
+            </div>
+        </section>
+    </div>
+</div>

@@ -46,6 +46,114 @@ namespace WebServer.Services
             return data ?? new List<ConversationThreadDto>();
         }
 
+        public async Task<ConversationDto> CreateOrGetOneToOneAsync(int accountId, int friendId)
+        {
+            var res = await _http.PostAsJsonAsync("api/conversations", new
+            {
+                accountId,
+                friendId
+            });
+
+            if (!res.IsSuccessStatusCode)
+            {
+                var err = await res.Content.ReadAsStringAsync();
+                throw new Exception($"Create conversation failed. Status: {res.StatusCode}. Body: {err}");
+            }
+
+            return await res.Content.ReadFromJsonAsync<ConversationDto>()
+                ?? throw new Exception("Create conversation response is empty.");
+        }
+
+        public async Task<ConversationDto> CreateGroupAsync(int ownerId, string title, IEnumerable<int> memberIds)
+        {
+            var cleanMemberIds = (memberIds ?? Enumerable.Empty<int>())
+                .Where(id => id > 0 && id != ownerId)
+                .Distinct()
+                .ToList();
+
+            if (ownerId <= 0)
+                throw new Exception("Không xác định được người tạo nhóm.");
+
+            if (cleanMemberIds.Count == 0)
+                throw new Exception("Vui lòng chọn ít nhất một thành viên khác bạn.");
+
+            var body = new CreateGroupConversationRequestDto
+            {
+                OwnerId = ownerId,
+                Title = title?.Trim() ?? "",
+                MemberIds = cleanMemberIds
+            };
+
+            var res = await _http.PostAsJsonAsync("api/conversations/groups", body);
+            if (!res.IsSuccessStatusCode)
+            {
+                var err = await res.Content.ReadAsStringAsync();
+                throw new Exception($"Create group failed. Status: {res.StatusCode}. Body: {err}");
+            }
+
+            return await res.Content.ReadFromJsonAsync<ConversationDto>()
+                ?? throw new Exception("Create group response is empty.");
+        }
+
+        public async Task<GroupInfoDto> GetGroupInfoAsync(int conversationId, int meAccountId)
+        {
+            var res = await _http.GetAsync($"api/conversations/{conversationId}/group?me={meAccountId}");
+            if (!res.IsSuccessStatusCode)
+            {
+                var err = await res.Content.ReadAsStringAsync();
+                throw new Exception($"Get group failed. Status: {res.StatusCode}. Body: {err}");
+            }
+
+            return await res.Content.ReadFromJsonAsync<GroupInfoDto>()
+                ?? throw new Exception("Get group response is empty.");
+        }
+
+        public async Task<ConversationDto> JoinGroupAsync(int conversationId, int accountId)
+        {
+            var res = await _http.PostAsJsonAsync(
+                $"api/conversations/{conversationId}/group/join",
+                new { accountId });
+
+            if (!res.IsSuccessStatusCode)
+            {
+                var err = await res.Content.ReadAsStringAsync();
+                throw new Exception($"Join group failed. Status: {res.StatusCode}. Body: {err}");
+            }
+
+            return await res.Content.ReadFromJsonAsync<ConversationDto>()
+                ?? throw new Exception("Join group response is empty.");
+        }
+
+        public async Task<GroupInfoDto> UpdateGroupAsync(int conversationId, int ownerId, string? title, string? avatarUrl)
+        {
+            var body = new UpdateGroupConversationRequestDto
+            {
+                OwnerId = ownerId,
+                Title = title,
+                AvatarUrl = avatarUrl
+            };
+
+            var res = await _http.PutAsJsonAsync($"api/conversations/{conversationId}/group", body);
+            if (!res.IsSuccessStatusCode)
+            {
+                var err = await res.Content.ReadAsStringAsync();
+                throw new Exception($"Update group failed. Status: {res.StatusCode}. Body: {err}");
+            }
+
+            return await res.Content.ReadFromJsonAsync<GroupInfoDto>()
+                ?? throw new Exception("Update group response is empty.");
+        }
+
+        public async Task RemoveGroupMemberAsync(int conversationId, int ownerId, int memberId)
+        {
+            var res = await _http.DeleteAsync($"api/conversations/{conversationId}/group/members/{memberId}?ownerId={ownerId}");
+            if (!res.IsSuccessStatusCode)
+            {
+                var err = await res.Content.ReadAsStringAsync();
+                throw new Exception($"Remove group member failed. Status: {res.StatusCode}. Body: {err}");
+            }
+        }
+
         public async Task<ConversationMessageDto> SendImageMessageAsync(
     int conversationId,
     int senderId,

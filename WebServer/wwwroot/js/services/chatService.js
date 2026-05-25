@@ -10,6 +10,42 @@ export const chatService = {
             params: { email }
         });
     },
+    async searchUserJson(email) {
+        return await api_origin.get("/chat/users/search", {
+            params: { email }
+        });
+    },
+    async createConversation(friendId) {
+        return await api_origin.post("/chat/conversations", {
+            friendId
+        });
+    },
+    async createGroup(title, memberIds) {
+        return await api_origin.post("/chat/groups", {
+            title,
+            memberIds
+        });
+    },
+    async getGroupInfoView(conversationId) {
+        return await api_origin.get(`/chat/groups/${conversationId}`);
+    },
+    async updateGroupSettings(conversationId, title, avatarFile = null) {
+        const formData = new FormData();
+        formData.append("Title", title ?? "");
+
+        if (avatarFile) {
+            formData.append("Avatar", avatarFile);
+        }
+
+        return await api_origin.post(`/chat/groups/${conversationId}/settings`, formData, {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        });
+    },
+    async removeGroupMember(conversationId, memberId) {
+        return await api_origin.post(`/chat/groups/${conversationId}/members/${memberId}/remove`);
+    },
     async getPersonalView(userId) {
         return await api_origin.get("/chat/personal", {
             params: { userId }

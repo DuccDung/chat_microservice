@@ -86,3 +86,12 @@ D:\laptrinhweb\code_outsrc\SystemChatBoxRealtime\microservice\SystemChatBoxRealt
 D:\laptrinhweb\code_outsrc\SystemChatBoxRealtime\microservice\SystemChatBoxRealtime\MessageCallService\obj\Debug\net9.0\MessageCallService.pdb
 D:\laptrinhweb\code_outsrc\SystemChatBoxRealtime\microservice\SystemChatBoxRealtime\MessageCallService\obj\Debug\net9.0\MessageCallService.genruntimeconfig.cache
 D:\laptrinhweb\code_outsrc\SystemChatBoxRealtime\microservice\SystemChatBoxRealtime\MessageCallService\obj\Debug\net9.0\ref\MessageCallService.dll
+C:\Users\Admin\AppData\Local\Temp\codex-messagecall-build\appsettings.Development.json
+C:\Users\Admin\AppData\Local\Temp\codex-messagecall-build\appsettings.json
+C:\Users\Admin\AppData\Local\Temp\codex-messagecall-build\MessageCallService.staticwebassets.endpoints.json
+C:\Users\Admin\AppData\Local\Temp\codex-messagecall-build\MessageCallService.exe
+C:\Users\Admin\AppData\Local\Temp\codex-messagecall-build\MessageCallService.deps.json
+C:\Users\Admin\AppData\Local\Temp\codex-messagecall-build\MessageCallService.runtimeconfig.json
+C:\Users\Admin\AppData\Local\Temp\codex-messagecall-build\MessageCallService.dll
+C:\Users\Admin\AppData\Local\Temp\codex-messagecall-build\MessageCallService.pdb
+D:\laptrinhweb\code_outsrc\SystemChatBoxRealtime\microservice\SystemChatBoxRealtime\MessageCallService\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt

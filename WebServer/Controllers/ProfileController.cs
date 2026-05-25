@@ -32,6 +32,7 @@ namespace WebServer.Controllers
 
             var profile = await _profileService.GetProfileAsync(accountId.Value, ct);
             var posts = await _profileService.GetPostsAsync(accountId.Value, ct);
+            posts = posts.Where(x => x.AccountId == accountId.Value).ToList();
 
             ViewBag.User = ToUserDto(profile);
 
@@ -159,19 +160,31 @@ namespace WebServer.Controllers
         }
 
         [HttpPost("/profile/posts/{postId:int}/update")]
+        [RequestSizeLimit(15_000_000)]
         public async Task<IActionResult> UpdatePost(int postId, [FromForm] UpdatePostForm req, CancellationToken ct)
         {
-            var accountId = GetCurrentAccountId();
-            if (accountId == null) return Unauthorized(new { message = "Bạn chưa đăng nhập." });
-            if (string.IsNullOrWhiteSpace(req.Content)) return BadRequest(new { message = "Nội dung bài viết không được để trống." });
-
-            await _profileService.UpdatePostAsync(postId, new UpdateProfilePostRequestDto
+            try
             {
-                AccountId = accountId.Value,
-                Content = req.Content.Trim()
-            }, ct);
+                var accountId = GetCurrentAccountId();
+                if (accountId == null) return Unauthorized(new { message = "Bạn chưa đăng nhập." });
+                string? mediaUrl = null;
+                if (req.File != null && req.File.Length > 0)
+                    mediaUrl = await SaveImageAsync(req.File, "posts", ct);
 
-            return Ok(new { status = true });
+                await _profileService.UpdatePostAsync(postId, new UpdateProfilePostRequestDto
+                {
+                    AccountId = accountId.Value,
+                    Content = req.Content,
+                    MediaUrl = mediaUrl,
+                    MediaType = mediaUrl == null ? null : "image"
+                }, ct);
+
+                return Ok(new { status = true });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpPost("/profile/posts/{postId:int}/delete")]
@@ -249,5 +262,6 @@ namespace WebServer.Controllers
     public sealed class UpdatePostForm
     {
         public string? Content { get; set; }
+        public IFormFile? File { get; set; }
     }
 }

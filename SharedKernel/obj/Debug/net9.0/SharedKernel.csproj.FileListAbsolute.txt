@@ -11,3 +11,9 @@ D:\laptrinhweb\code_outsrc\SystemChatBoxRealtime\microservice\SystemChatBoxRealt
 D:\laptrinhweb\code_outsrc\SystemChatBoxRealtime\microservice\SystemChatBoxRealtime\SharedKernel\obj\Debug\net9.0\refint\SharedKernel.dll
 D:\laptrinhweb\code_outsrc\SystemChatBoxRealtime\microservice\SystemChatBoxRealtime\SharedKernel\obj\Debug\net9.0\SharedKernel.pdb
 D:\laptrinhweb\code_outsrc\SystemChatBoxRealtime\microservice\SystemChatBoxRealtime\SharedKernel\obj\Debug\net9.0\ref\SharedKernel.dll
+C:\Users\Admin\AppData\Local\Temp\codex-userservice-build\SharedKernel.deps.json
+C:\Users\Admin\AppData\Local\Temp\codex-userservice-build\SharedKernel.dll
+C:\Users\Admin\AppData\Local\Temp\codex-userservice-build\SharedKernel.pdb
+C:\Users\Admin\AppData\Local\Temp\codex-messagecall-build\SharedKernel.deps.json
+C:\Users\Admin\AppData\Local\Temp\codex-messagecall-build\SharedKernel.dll
+C:\Users\Admin\AppData\Local\Temp\codex-messagecall-build\SharedKernel.pdb

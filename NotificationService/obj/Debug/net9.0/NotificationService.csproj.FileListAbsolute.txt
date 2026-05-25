@@ -86,3 +86,4 @@ D:\laptrinhweb\code_outsrc\SystemChatBoxRealtime\microservice\SystemChatBoxRealt
 D:\laptrinhweb\code_outsrc\SystemChatBoxRealtime\microservice\SystemChatBoxRealtime\NotificationService\obj\Debug\net9.0\NotificationService.pdb
 D:\laptrinhweb\code_outsrc\SystemChatBoxRealtime\microservice\SystemChatBoxRealtime\NotificationService\obj\Debug\net9.0\NotificationService.genruntimeconfig.cache
 D:\laptrinhweb\code_outsrc\SystemChatBoxRealtime\microservice\SystemChatBoxRealtime\NotificationService\obj\Debug\net9.0\ref\NotificationService.dll
+D:\laptrinhweb\code_outsrc\SystemChatBoxRealtime\microservice\SystemChatBoxRealtime\NotificationService\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt

@@ -156,13 +156,38 @@ namespace UserService.Controllers
             if (req.AccountId <= 0) return BadRequest("Invalid account id.");
 
             var post = await _context.Posts
+                .Include(x => x.PostMedia)
                 .FirstOrDefaultAsync(x => x.PostId == postId && x.AccountId == req.AccountId && x.IsRemove != true, ct);
 
             if (post == null) return NotFound("Post not found.");
-            if (string.IsNullOrWhiteSpace(req.Content))
-                return BadRequest("Post content is required.");
+            var content = string.IsNullOrWhiteSpace(req.Content) ? null : req.Content.Trim();
+            var hasNewMedia = !string.IsNullOrWhiteSpace(req.MediaUrl);
+            var hasExistingMedia = post.PostMedia.Any();
+            if (content == null && !hasNewMedia && !hasExistingMedia)
+                return BadRequest("Post content or media is required.");
 
-            post.Content = req.Content.Trim();
+            post.Content = content;
+            if (hasNewMedia)
+            {
+                var media = post.PostMedia.OrderBy(x => x.MediaId).FirstOrDefault();
+                if (media == null)
+                {
+                    await _context.PostMedia.AddAsync(new PostMedium
+                    {
+                        PostId = post.PostId,
+                        MediaUrl = req.MediaUrl!.Trim(),
+                        MediaType = string.IsNullOrWhiteSpace(req.MediaType) ? "image" : req.MediaType.Trim(),
+                        CreateAt = DateTime.UtcNow
+                    }, ct);
+                }
+                else
+                {
+                    media.MediaUrl = req.MediaUrl!.Trim();
+                    media.MediaType = string.IsNullOrWhiteSpace(req.MediaType) ? "image" : req.MediaType.Trim();
+                }
+            }
+
+            post.PostType = hasNewMedia || hasExistingMedia ? "image" : "text";
             post.UpdateAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync(ct);
@@ -226,6 +251,8 @@ namespace UserService.Controllers
     {
         public int AccountId { get; set; }
         public string? Content { get; set; }
+        public string? MediaUrl { get; set; }
+        public string? MediaType { get; set; }
     }
 
     public sealed class ProfilePostDto

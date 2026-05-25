@@ -86,3 +86,12 @@ D:\laptrinhweb\code_outsrc\SystemChatBoxRealtime\microservice\SystemChatBoxRealt
 D:\laptrinhweb\code_outsrc\SystemChatBoxRealtime\microservice\SystemChatBoxRealtime\UserService\obj\Debug\net9.0\UserService.pdb
 D:\laptrinhweb\code_outsrc\SystemChatBoxRealtime\microservice\SystemChatBoxRealtime\UserService\obj\Debug\net9.0\UserService.genruntimeconfig.cache
 D:\laptrinhweb\code_outsrc\SystemChatBoxRealtime\microservice\SystemChatBoxRealtime\UserService\obj\Debug\net9.0\ref\UserService.dll
+C:\Users\Admin\AppData\Local\Temp\codex-userservice-build\appsettings.Development.json
+C:\Users\Admin\AppData\Local\Temp\codex-userservice-build\appsettings.json
+C:\Users\Admin\AppData\Local\Temp\codex-userservice-build\UserService.staticwebassets.endpoints.json
+C:\Users\Admin\AppData\Local\Temp\codex-userservice-build\UserService.exe
+C:\Users\Admin\AppData\Local\Temp\codex-userservice-build\UserService.deps.json
+C:\Users\Admin\AppData\Local\Temp\codex-userservice-build\UserService.runtimeconfig.json
+C:\Users\Admin\AppData\Local\Temp\codex-userservice-build\UserService.dll
+C:\Users\Admin\AppData\Local\Temp\codex-userservice-build\UserService.pdb
+D:\laptrinhweb\code_outsrc\SystemChatBoxRealtime\microservice\SystemChatBoxRealtime\UserService\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt

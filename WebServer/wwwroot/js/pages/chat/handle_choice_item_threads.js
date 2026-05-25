@@ -1,5 +1,8 @@
-﻿import { chatService } from "../../services/chatService.js";
+import { chatService } from "../../services/chatService.js";
+import { load } from "../../utils/helper.js";
+import { openAppModal } from "../../utils/modal.js";
 import { subscribeConversation } from "../../services/ws-client.js";
+import { loadThreads } from "./threads.js";
 
 const threadList = document.getElementById("threadList");
 const peerName = document.getElementById("peerName");
@@ -28,6 +31,17 @@ if (!threadList) {
             return;
         }
 
+        const groupInfo = e.target.closest(".js-group-info");
+        if (groupInfo) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const item = groupInfo.closest(".thread-item");
+            closeAllMenusExcept(null);
+            await openGroupInfo(item?.dataset.id);
+            return;
+        }
+
         const item = e.target.closest(".thread-item");
         if (!item || !threadList.contains(item)) return;
 
@@ -41,9 +55,100 @@ if (!threadList) {
         }
     });
 
-    // Auto open first thread 
     autoOpenFirstThreadWhenReady();
 }
+
+document.addEventListener("click", async (e) => {
+    const avatarBtn = e.target.closest(".group_manage__avatar_btn");
+    if (avatarBtn) {
+        avatarBtn.closest(".group_manage")?.querySelector(".group_manage__avatar_input")?.click();
+        return;
+    }
+
+    const saveBtn = e.target.closest(".group_manage__save");
+    if (saveBtn) {
+        const modal = saveBtn.closest(".group_manage");
+        const conversationId = modal?.dataset.conversationId;
+        const title = modal?.querySelector(".group_manage__title_input")?.value?.trim() || "";
+        const avatarInput = modal?.querySelector(".group_manage__avatar_input");
+        const avatarFile = avatarInput?.files?.[0] || null;
+
+        if (!conversationId) return;
+        if (!title) {
+            alert("Tên nhóm không được để trống.");
+            return;
+        }
+
+        try {
+            load(true);
+            const updated = await chatService.updateGroupSettings(conversationId, title, avatarFile);
+            await loadThreads();
+
+            const res = await chatService.getGroupInfoView(conversationId);
+            openAppModal(res.data);
+            updateActiveConversationHeader(updated?.data);
+            load(false);
+        } catch (err) {
+            console.error(err);
+            load(false);
+            alert(getErrorMessage(err, "Không lưu được thông tin nhóm."));
+        }
+        return;
+    }
+
+    const removeBtn = e.target.closest(".group_manage__remove[data-member-id]");
+    if (removeBtn) {
+        const modal = removeBtn.closest(".group_manage");
+        const conversationId = modal?.dataset.conversationId;
+        const memberId = removeBtn.dataset.memberId;
+
+        if (!conversationId || !memberId) return;
+        if (!confirm("Xóa thành viên này khỏi nhóm?")) return;
+
+        try {
+            load(true);
+            await chatService.removeGroupMember(conversationId, memberId);
+            const res = await chatService.getGroupInfoView(conversationId);
+            openAppModal(res.data);
+            load(false);
+        } catch (err) {
+            console.error(err);
+            load(false);
+            alert(getErrorMessage(err, "Không xóa được thành viên."));
+        }
+        return;
+    }
+
+    const copyBtn = e.target.closest(".group_manage__copy[data-copy-text]");
+    if (copyBtn) {
+        const text = copyBtn.dataset.copyText || "";
+
+        try {
+            await navigator.clipboard.writeText(text);
+            copyBtn.textContent = "Đã sao chép";
+            setTimeout(() => {
+                copyBtn.textContent = "Sao chép";
+            }, 1600);
+        } catch {
+            const input = copyBtn.closest(".group_manage__invite")?.querySelector("input");
+            input?.select();
+            document.execCommand("copy");
+        }
+    }
+});
+
+document.addEventListener("change", (e) => {
+    const input = e.target.closest(".group_manage__avatar_input");
+    if (!input) return;
+
+    const file = input.files?.[0];
+    if (!file) return;
+
+    const preview = input.closest(".group_manage")?.querySelector(".group_manage__group_avatar");
+    if (preview) {
+        preview.src = URL.createObjectURL(file);
+    }
+});
 
 function closeAllMenusExcept(menuToKeep) {
     document.querySelectorAll(".thread-menu").forEach((m) => {
@@ -56,7 +161,6 @@ function setActiveItem(item) {
     item.classList.add("active");
 }
 
-/** Mở thread giống như click */
 async function openThread(item) {
     const conversationId = item.dataset.id;
     if (!conversationId) return;
@@ -65,7 +169,7 @@ async function openThread(item) {
 
     if (peerName) peerName.textContent = item.dataset.name || "Người dùng";
     if (peerAvatar) peerAvatar.src = item.dataset.avatar || peerAvatar.src;
-    if (peerStatus) peerStatus.textContent = "";
+    if (peerStatus) peerStatus.textContent = item.dataset.isGroup === "true" ? "Nhóm chat" : "";
 
     item.classList.remove("highlight", "unread");
     const badge = item.querySelector(".unread-badge");
@@ -95,6 +199,39 @@ async function loadMessages(conversationId) {
     } catch (err) {
         console.error(err);
         scroller.innerHTML = `<div class="error">Không tải được tin nhắn.</div>`;
+    }
+}
+
+async function openGroupInfo(conversationId) {
+    if (!conversationId) return;
+
+    try {
+        load(true);
+        const res = await chatService.getGroupInfoView(conversationId);
+        openAppModal(res.data);
+        load(false);
+    } catch (err) {
+        console.error(err);
+        load(false);
+        alert(getErrorMessage(err, "Không tải được thông tin nhóm."));
+    }
+}
+
+function getErrorMessage(error, fallback) {
+    return error?.response?.data?.message || error?.message || fallback;
+}
+
+function updateActiveConversationHeader(group) {
+    if (!group) return;
+
+    const active = document.querySelector(`.thread-item[data-id="${group.conversationId}"]`);
+    if (active) {
+        active.dataset.name = group.title || active.dataset.name;
+        active.dataset.avatar = group.avatarUrl || active.dataset.avatar;
+        active.click();
+    } else {
+        if (peerName && group.title) peerName.textContent = group.title;
+        if (peerAvatar && group.avatarUrl) peerAvatar.src = group.avatarUrl;
     }
 }
 

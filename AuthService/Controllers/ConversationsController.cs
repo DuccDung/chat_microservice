@@ -29,12 +29,86 @@ namespace AuthService.Controllers
             }
         }
 
+        [HttpPost("groups")]
+        public async Task<IActionResult> CreateGroup([FromBody] CreateGroupConversationRequest req, CancellationToken ct)
+        {
+            try
+            {
+                return Ok(await _messageCallService.CreateGroupAsync(req, ct));
+            }
+            catch (ServiceException ex)
+            {
+                return ToErrorResult(ex);
+            }
+        }
+
         [HttpGet("threads")]
         public async Task<IActionResult> GetThreads([FromQuery] int accountId, CancellationToken ct)
         {
             try
             {
                 return Ok(await _messageCallService.GetThreadsAsync(accountId, ct));
+            }
+            catch (ServiceException ex)
+            {
+                return ToErrorResult(ex);
+            }
+        }
+
+        [HttpGet("{conversationId:int}/group")]
+        public async Task<IActionResult> GetGroupInfo(int conversationId, [FromQuery] int me, CancellationToken ct)
+        {
+            try
+            {
+                return Ok(await _messageCallService.GetGroupInfoAsync(conversationId, me, ct));
+            }
+            catch (ServiceException ex)
+            {
+                return ToErrorResult(ex);
+            }
+        }
+
+        [HttpPost("{conversationId:int}/group/join")]
+        public async Task<IActionResult> JoinGroup(int conversationId, [FromBody] JoinGroupRequest req, CancellationToken ct)
+        {
+            try
+            {
+                return Ok(await _messageCallService.JoinGroupAsync(conversationId, req.AccountId, ct));
+            }
+            catch (ServiceException ex)
+            {
+                return ToErrorResult(ex);
+            }
+        }
+
+        [HttpPut("{conversationId:int}/group")]
+        public async Task<IActionResult> UpdateGroup(int conversationId, [FromBody] UpdateGroupRequest req, CancellationToken ct)
+        {
+            try
+            {
+                return Ok(await _messageCallService.UpdateGroupAsync(conversationId, req, ct));
+            }
+            catch (ServiceException ex)
+            {
+                return ToErrorResult(ex);
+            }
+        }
+
+        [HttpDelete("{conversationId:int}/group/members/{memberId:int}")]
+        public async Task<IActionResult> RemoveGroupMember(
+            int conversationId,
+            int memberId,
+            [FromQuery] int ownerId,
+            CancellationToken ct)
+        {
+            try
+            {
+                await _messageCallService.RemoveGroupMemberAsync(
+                    conversationId,
+                    new RemoveGroupMemberRequest { OwnerId = ownerId, MemberId = memberId },
+                    ct);
+
+                return Ok(new { ok = true });
             }
             catch (ServiceException ex)
             {
@@ -137,14 +211,15 @@ namespace AuthService.Controllers
 
         private IActionResult ToErrorResult(ServiceException ex)
         {
+            var error = new { message = ex.Message };
+
             return ex.StatusCode switch
             {
-                StatusCodes.Status400BadRequest => BadRequest(ex.Message),
-                StatusCodes.Status403Forbidden => Forbid(),
-                StatusCodes.Status404NotFound => NotFound(ex.Message),
-                _ => StatusCode(ex.StatusCode, ex.Message)
+                StatusCodes.Status400BadRequest => BadRequest(error),
+                StatusCodes.Status403Forbidden => StatusCode(StatusCodes.Status403Forbidden, error),
+                StatusCodes.Status404NotFound => NotFound(error),
+                _ => StatusCode(ex.StatusCode, error)
             };
         }
     }
 }
-

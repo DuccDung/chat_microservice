@@ -39,6 +39,9 @@ else
     {
         <li class="thread-item"
             data-id="@t.ConversationId"
+            data-other-account-id="@t.OtherAccountId"
+            data-is-group="@t.IsGroup.ToString().ToLowerInvariant()"
+            data-is-owner="@t.IsOwner.ToString().ToLowerInvariant()"
             data-name="@t.Name"
             data-avatar="@SafeImg(t.AvatarUrl)">
             <div class="avatar">
@@ -59,7 +62,14 @@ else
             <ul class="thread-menu" hidden>
                 <li class="js-mark-unread">Đánh dấu là chưa đọc</li>
                 <li class="js-mute">Tắt thông báo</li>
-                <li class="js-view-profile" data-user-name="@t.Name">Xem trang cá nhân</li>
+                @if (t.IsGroup)
+                {
+                    <li class="js-group-info">Quản lý nhóm</li>
+                }
+                else
+                {
+                    <li class="js-view-profile" data-user-name="@t.Name">Xem trang cá nhân</li>
+                }
                 <li class="js-call">Gọi thoại</li>
                 <li class="js-video">Chat video</li>
                 <li class="js-block">Chặn</li>

@@ -1,4 +1,5 @@
 const page = document.querySelector(".profile-page");
+const currentAccountId = page?.dataset.currentAccountId || "";
 const defaultAvatar = page?.dataset.defaultAvatar || "/assets/images/avatar-default.png";
 const defaultCover = page?.dataset.defaultCover || "/assets/images/cover_default.jpg";
 
@@ -10,11 +11,14 @@ const postModalTitle = document.getElementById("postModalTitle");
 const postContentInput = document.getElementById("postContentInput");
 const postFileInput = document.getElementById("postFileInput");
 const postFilePicker = document.getElementById("postFilePicker");
+const postFilePickerText = postFilePicker?.querySelector("strong");
 const postImagePreview = document.getElementById("postImagePreview");
 const removePostImage = document.getElementById("removePostImage");
 const submitPostBtn = document.getElementById("submitPostBtn");
 
 let editingPostId = null;
+let editingPostCard = null;
+let editingExistingImageUrl = "";
 
 function openModal(modal) {
     modal.hidden = false;
@@ -67,8 +71,14 @@ async function postFormData(url, formData) {
 function setButtonBusy(button, busy) {
     if (!button) return;
     button.disabled = busy;
-    button.dataset.originalText ??= button.textContent;
-    button.textContent = busy ? "Đang xử lý..." : button.dataset.originalText;
+    if (busy) {
+        button.dataset.originalText = button.textContent;
+        button.textContent = "Đang xử lý...";
+        return;
+    }
+
+    button.textContent = button.dataset.originalText || button.textContent;
+    delete button.dataset.originalText;
 }
 
 function setImageFallbacks() {
@@ -81,25 +91,41 @@ function setImageFallbacks() {
 
 function openPostCreateModal() {
     editingPostId = null;
+    editingPostCard = null;
+    editingExistingImageUrl = "";
     postModalTitle.textContent = "Tạo bài viết";
     submitPostBtn.textContent = "Đăng";
     postContentInput.value = "";
     postFileInput.value = "";
     postFilePicker.hidden = false;
+    if (postFilePickerText) postFilePickerText.textContent = "Thêm ảnh vào bài viết";
+    if (removePostImage) removePostImage.hidden = false;
     hidePostPreview();
     openModal(postModal);
     postContentInput.focus();
 }
 
 function openPostEditModal(postCard) {
+    if (currentAccountId && postCard.dataset.ownerId && postCard.dataset.ownerId !== currentAccountId) {
+        alert("Bạn chỉ có thể sửa bài viết của chính mình.");
+        return;
+    }
+
     editingPostId = postCard.dataset.postId;
+    editingPostCard = postCard;
+    editingExistingImageUrl = postCard.querySelector(".profile-post__image")?.getAttribute("src") || "";
     const content = postCard.querySelector(".profile-post__content")?.textContent?.trim() || "";
     postModalTitle.textContent = "Sửa bài viết";
     submitPostBtn.textContent = "Lưu";
     postContentInput.value = content;
     postFileInput.value = "";
-    postFilePicker.hidden = true;
-    hidePostPreview();
+    postFilePicker.hidden = false;
+    if (postFilePickerText) postFilePickerText.textContent = editingExistingImageUrl ? "Thay ảnh trong bài viết" : "Thêm ảnh vào bài viết";
+    if (editingExistingImageUrl) {
+        showExistingPostPreview(editingExistingImageUrl);
+    } else {
+        hidePostPreview();
+    }
     openModal(postModal);
     postContentInput.focus();
 }
@@ -109,12 +135,21 @@ function showPostPreview(file) {
     const url = URL.createObjectURL(file);
     const img = postImagePreview.querySelector("img");
     img.src = url;
+    if (removePostImage) removePostImage.hidden = false;
+    postImagePreview.hidden = false;
+}
+
+function showExistingPostPreview(url) {
+    const img = postImagePreview.querySelector("img");
+    img.src = url;
+    if (removePostImage) removePostImage.hidden = true;
     postImagePreview.hidden = false;
 }
 
 function hidePostPreview() {
     const img = postImagePreview.querySelector("img");
     img.removeAttribute("src");
+    if (removePostImage) removePostImage.hidden = false;
     postImagePreview.hidden = true;
 }
 
@@ -259,6 +294,11 @@ postFileInput?.addEventListener("change", () => {
 
 removePostImage?.addEventListener("click", () => {
     postFileInput.value = "";
+    if (editingPostId && editingExistingImageUrl) {
+        showExistingPostPreview(editingExistingImageUrl);
+        return;
+    }
+
     hidePostPreview();
 });
 
