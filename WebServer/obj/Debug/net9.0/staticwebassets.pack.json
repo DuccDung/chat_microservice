@@ -277,6 +277,18 @@
       "PackagePath": "staticwebassets\\css\\pages\\login\\main.css"
     },
     {
+      "Id": "D:\\laptrinhweb\\code_outsrc\\SystemChatBoxRealtime\\microservice\\SystemChatBoxRealtime\\WebServer\\wwwroot\\css\\pages\\profile\\main.css",
+      "PackagePath": "staticwebassets\\css\\pages\\profile\\main.css"
+    },
+    {
+      "Id": "D:\\laptrinhweb\\code_outsrc\\SystemChatBoxRealtime\\microservice\\SystemChatBoxRealtime\\WebServer\\wwwroot\\css\\pages\\profile\\personalpage.css",
+      "PackagePath": "staticwebassets\\css\\pages\\profile\\personalpage.css"
+    },
+    {
+      "Id": "D:\\laptrinhweb\\code_outsrc\\SystemChatBoxRealtime\\microservice\\SystemChatBoxRealtime\\WebServer\\wwwroot\\css\\pages\\profile\\select_cover_photo.css",
+      "PackagePath": "staticwebassets\\css\\pages\\profile\\select_cover_photo.css"
+    },
+    {
       "Id": "D:\\laptrinhweb\\code_outsrc\\SystemChatBoxRealtime\\microservice\\SystemChatBoxRealtime\\WebServer\\wwwroot\\css\\pages\\register\\main.css",
       "PackagePath": "staticwebassets\\css\\pages\\register\\main.css"
     },
@@ -331,6 +343,10 @@
     {
       "Id": "D:\\laptrinhweb\\code_outsrc\\SystemChatBoxRealtime\\microservice\\SystemChatBoxRealtime\\WebServer\\wwwroot\\js\\pages\\chat\\webrtc-service.js",
       "PackagePath": "staticwebassets\\js\\pages\\chat\\webrtc-service.js"
+    },
+    {
+      "Id": "D:\\laptrinhweb\\code_outsrc\\SystemChatBoxRealtime\\microservice\\SystemChatBoxRealtime\\WebServer\\wwwroot\\js\\pages\\profile\\main.js",
+      "PackagePath": "staticwebassets\\js\\pages\\profile\\main.js"
     },
     {
       "Id": "D:\\laptrinhweb\\code_outsrc\\SystemChatBoxRealtime\\microservice\\SystemChatBoxRealtime\\WebServer\\wwwroot\\js\\pages\\register\\main.js",

@@ -1,6 +1,9 @@
 ﻿@using WebServer.Dtos
 @{
-    var user = (UserDto)ViewBag.User;
+    var user = ViewBag.User as UserDto;
+    var defaultAvatar = Url.Content("~/assets/images/avatar-default.png");
+    var photoPath = string.IsNullOrWhiteSpace(user?.PhotoPath) ? defaultAvatar : user.PhotoPath;
+    var userName = string.IsNullOrWhiteSpace(user?.AccountName) ? "Người dùng" : user.AccountName;
 }
 <style>
 
@@ -64,7 +67,7 @@
 <div class="topbar">
     <!-- Left: Logo + Search -->
     <div class="top-left">
-        <a class="brand" id="backBtn">
+        <a class="brand" id="backBtn" asp-controller="Home" asp-action="Main">
             <img src="~/assets/icons/facebook.svg" alt="" />
         </a>
         <div class="searchbar-top">
@@ -92,11 +95,11 @@
                     id="avatarBtn"
                     aria-haspopup="true"
                     aria-expanded="false">
-                <img src="@user.PhotoPath" alt="" />
+                <img src="@photoPath" alt="@userName" />
             </button>
 
             <div class="avatar-dropdown" id="avatarDropdown" hidden>
-                <a class="avatar-dropdown__item" href="profile.html">Trang cá nhân</a>
+                <a class="avatar-dropdown__item" asp-controller="Profile" asp-action="Index">Trang cá nhân</a>
                 <button class="avatar-dropdown__item avatar-dropdown__danger"
                         id="logoutBtn"
                         type="button">

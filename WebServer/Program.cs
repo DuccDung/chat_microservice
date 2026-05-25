@@ -6,6 +6,10 @@ Env.Load();
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddMemoryCache();
+builder.Services.Configure<WebServer.Services.EmailOptions>(builder.Configuration.GetSection("Email"));
+builder.Services.Configure<WebServer.Services.SmtpOptions>(builder.Configuration.GetSection("Smtp"));
+builder.Services.AddScoped<WebServer.Interfaces.IEmailSender, WebServer.Services.SmtpEmailSender>();
 builder.Services.AddHttpClient<IAuthService, AuthService>(
     (sp, client) =>
     {
@@ -28,6 +32,13 @@ builder.Services.AddHttpClient<IUserService, UserService>(
         var baseUrl = config["ApiClients:Users:BaseUrl"] ?? "http://localhost:5183";
         client.BaseAddress = new Uri(baseUrl);
     });
+builder.Services.AddHttpClient<IProfileService, ProfileService>(
+    (sp, client) =>
+    {
+        var config = sp.GetRequiredService<IConfiguration>();
+        var baseUrl = config["ApiClients:Users:BaseUrl"] ?? "http://localhost:5183";
+        client.BaseAddress = new Uri(baseUrl);
+    });
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(opt => { opt.LoginPath = "/Auth/Login"; opt.LogoutPath = "/Auth/Logout"; opt.ExpireTimeSpan = TimeSpan.FromHours(8); opt.SlidingExpiration = true; });
 builder.Services.AddSingleton<WebServer.Services.RealtimeHub>();
@@ -42,6 +53,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthentication();

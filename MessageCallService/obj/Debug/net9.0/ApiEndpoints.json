@@ -1,6 +1,6 @@
 [
   {
-    "ContainingType": "ApplicationServer.Controllers.ConversationsController",
+    "ContainingType": "AuthService.Controllers.ConversationsController",
     "Method": "CreateOrGetOneToOne",
     "RelativePath": "api/conversations",
     "HttpMethod": "POST",
@@ -9,14 +9,14 @@
     "Parameters": [
       {
         "Name": "req",
-        "Type": "ApplicationServer.Dtos.Conversations.CreateConversationRequest",
+        "Type": "AuthService.Dtos.Conversations.CreateConversationRequest",
         "IsRequired": true
       }
     ],
     "ReturnTypes": []
   },
   {
-    "ContainingType": "ApplicationServer.Controllers.ConversationsController",
+    "ContainingType": "AuthService.Controllers.ConversationsController",
     "Method": "MarkRead",
     "RelativePath": "api/conversations/{conversationId}/mark-read",
     "HttpMethod": "POST",
@@ -37,7 +37,7 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "ApplicationServer.Controllers.ConversationsController",
+    "ContainingType": "AuthService.Controllers.ConversationsController",
     "Method": "GetMessages",
     "RelativePath": "api/conversations/{conversationId}/messages",
     "HttpMethod": "GET",
@@ -68,7 +68,7 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "ApplicationServer.Controllers.ConversationsController",
+    "ContainingType": "AuthService.Controllers.ConversationsController",
     "Method": "SendTextMessage",
     "RelativePath": "api/conversations/{conversationId}/messages",
     "HttpMethod": "POST",
@@ -82,14 +82,14 @@
       },
       {
         "Name": "req",
-        "Type": "ApplicationServer.Dtos.Conversations.SendMessageRequest",
+        "Type": "AuthService.Dtos.Conversations.SendMessageRequest",
         "IsRequired": true
       }
     ],
     "ReturnTypes": []
   },
   {
-    "ContainingType": "ApplicationServer.Controllers.ConversationsController",
+    "ContainingType": "AuthService.Controllers.ConversationsController",
     "Method": "SendAudioMessage",
     "RelativePath": "api/conversations/{conversationId}/messages/audio",
     "HttpMethod": "POST",
@@ -103,14 +103,14 @@
       },
       {
         "Name": "req",
-        "Type": "ApplicationServer.Dtos.Conversations.SendAudioMessageRequest",
+        "Type": "AuthService.Dtos.Conversations.SendAudioMessageRequest",
         "IsRequired": true
       }
     ],
     "ReturnTypes": []
   },
   {
-    "ContainingType": "ApplicationServer.Controllers.ConversationsController",
+    "ContainingType": "AuthService.Controllers.ConversationsController",
     "Method": "SendImageMessage",
     "RelativePath": "api/conversations/{conversationId}/messages/image",
     "HttpMethod": "POST",
@@ -124,14 +124,14 @@
       },
       {
         "Name": "req",
-        "Type": "ApplicationServer.Dtos.Conversations.SendImageMessageRequest",
+        "Type": "AuthService.Dtos.Conversations.SendImageMessageRequest",
         "IsRequired": true
       }
     ],
     "ReturnTypes": []
   },
   {
-    "ContainingType": "ApplicationServer.Controllers.ConversationsController",
+    "ContainingType": "AuthService.Controllers.ConversationsController",
     "Method": "GetPeerInfo",
     "RelativePath": "api/conversations/{conversationId}/peer",
     "HttpMethod": "GET",
@@ -152,7 +152,7 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "ApplicationServer.Controllers.ConversationsController",
+    "ContainingType": "AuthService.Controllers.ConversationsController",
     "Method": "GetThreads",
     "RelativePath": "api/conversations/threads",
     "HttpMethod": "GET",
@@ -166,5 +166,21 @@
       }
     ],
     "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Program\u002B\u003C\u003Ec",
+    "Method": "\u003C\u003CMain\u003E$\u003Eb__0_1",
+    "RelativePath": "health",
+    "HttpMethod": "GET",
+    "IsController": false,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Void",
+        "MediaTypes": [],
+        "StatusCode": 200
+      }
+    ]
   }
 ]

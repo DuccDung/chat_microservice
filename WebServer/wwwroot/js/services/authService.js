@@ -6,9 +6,14 @@ export const authService = {
         const res = await api_origin.post("/auth/login", payload);
         return res; 
     },
-    async register(accountName, email, password) {
+    async sendRegisterOtp(accountName, email, password) {
         const payload = { accountName, email, password };
-        const res = await api_origin.post("/auth/register", payload);
+        const res = await api_origin.post("/auth/register/send-otp", payload);
+        return res;
+    },
+    async verifyRegisterOtp(email, otp) {
+        const payload = { email, otp };
+        const res = await api_origin.post("/auth/register/verify-otp", payload);
         return res;
     }
 };

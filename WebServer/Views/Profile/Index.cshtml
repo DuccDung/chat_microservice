@@ -1,0 +1,261 @@
+@model WebServer.ViewModels.Profile.ProfilePageVm
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Trang cá nhân";
+
+    string AssetOrDefault(string? value, string fallback)
+    {
+        return string.IsNullOrWhiteSpace(value) ? fallback : value;
+    }
+
+    var avatar = AssetOrDefault(Model.User.PhotoPath, Model.DefaultAvatarPath);
+    var cover = AssetOrDefault(Model.User.PhotoBackground, Model.DefaultCoverPath);
+    var genderText = Model.User.Gender switch
+    {
+        1 => "Nam",
+        2 => "Nữ",
+        3 => "Khác",
+        _ => "Chưa cập nhật"
+    };
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/profile/personalpage.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/pages/profile/select_cover_photo.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/pages/profile/main.css" asp-append-version="true" />
+}
+
+<main class="profile-page"
+      data-default-avatar="@Model.DefaultAvatarPath"
+      data-default-cover="@Model.DefaultCoverPath">
+    <section class="profile-shell">
+        <header class="profile-hero">
+            <div class="profile-cover" style="background-image: url('@cover')">
+                <button class="profile-cover__action" id="coverUploadBtn" type="button">
+                    <span class="profile-icon">📷</span>
+                    <span>Thêm ảnh bìa</span>
+                </button>
+                <input id="coverInput" type="file" accept="image/*" hidden />
+            </div>
+
+            <div class="profile-summary">
+                <div class="profile-avatar-wrap">
+                    <img class="profile-avatar" id="profileAvatar" src="@avatar" alt="@Model.User.AccountName" />
+                    <button class="profile-avatar-edit" id="avatarUploadBtn" type="button" aria-label="Đổi ảnh đại diện">
+                        <span>📷</span>
+                    </button>
+                    <input id="avatarInput" type="file" accept="image/*" hidden />
+                </div>
+
+                <div class="profile-title">
+                    <h1 id="profileName">@Model.User.AccountName</h1>
+                    <p>@Model.User.Email</p>
+                </div>
+
+                <div class="profile-actions">
+                    <button class="profile-btn profile-btn--primary" id="openPostComposer" type="button">Tạo bài viết</button>
+                    <button class="profile-btn" id="openEditProfile" type="button">Chỉnh sửa trang cá nhân</button>
+                </div>
+            </div>
+
+            <nav class="profile-tabs" aria-label="Điều hướng trang cá nhân">
+                <a class="profile-tabs__item profile-tabs__item--active" href="#profilePosts">Bài viết</a>
+                <a class="profile-tabs__item" href="#profileIntro">Giới thiệu</a>
+                <a class="profile-tabs__item" href="#profilePhotos">Ảnh</a>
+            </nav>
+        </header>
+
+        <div class="profile-content">
+            <aside class="profile-left">
+                <section class="profile-card" id="profileIntro">
+                    <div class="profile-card__head">
+                        <h2>Giới thiệu</h2>
+                    </div>
+                    <p class="profile-bio" id="profileBio">@(string.IsNullOrWhiteSpace(Model.User.Bio) ? "Chưa có tiểu sử." : Model.User.Bio)</p>
+                    <button class="profile-btn profile-btn--block" id="openEditBio" type="button">Chỉnh sửa tiểu sử</button>
+
+                    <div class="profile-intro-list">
+                        <div class="profile-intro-item">
+                            <span>🎂</span>
+                            <div>
+                                <strong>Ngày sinh</strong>
+                                <p id="profileDob">@(Model.User.DateOfBirth?.ToString("dd/MM/yyyy") ?? "Chưa cập nhật")</p>
+                            </div>
+                        </div>
+                        <div class="profile-intro-item">
+                            <span>👤</span>
+                            <div>
+                                <strong>Giới tính</strong>
+                                <p id="profileGender">@genderText</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="profile-card" id="profilePhotos">
+                    <div class="profile-card__head">
+                        <h2>Ảnh</h2>
+                    </div>
+                    <div class="profile-photos">
+                        <img src="@avatar" alt="Ảnh đại diện" />
+                        <img src="@cover" alt="Ảnh bìa" />
+                        @foreach (var media in Model.Posts.SelectMany(x => x.Media).Take(4))
+                        {
+                            <img src="@media.MediaUrl" alt="Ảnh bài viết" />
+                        }
+                    </div>
+                </section>
+            </aside>
+
+            <section class="profile-feed" id="profilePosts">
+                <section class="profile-card profile-composer">
+                    <div class="profile-composer__top">
+                        <img src="@avatar" alt="@Model.User.AccountName" />
+                        <button id="composerInputBtn" type="button">Bạn đang nghĩ gì?</button>
+                    </div>
+                    <div class="profile-composer__actions">
+                        <button id="composerPhotoBtn" type="button"><span>🖼️</span> Ảnh/video</button>
+                        <button id="composerTextBtn" type="button"><span>✍️</span> Bài viết</button>
+                    </div>
+                </section>
+
+                <section class="profile-feed-filter">
+                    <h2>Bài viết</h2>
+                    <div>
+                        <button class="profile-btn" type="button">Danh sách</button>
+                    </div>
+                </section>
+
+                <div class="post-list">
+                    @if (!Model.Posts.Any())
+                    {
+                        <section class="profile-card profile-empty-state">
+                            <h3>Chưa có bài viết</h3>
+                            <p>Bài viết mới của bạn sẽ xuất hiện ở đây.</p>
+                        </section>
+                    }
+
+                    @foreach (var post in Model.Posts)
+                    {
+                        var postAvatar = AssetOrDefault(post.AuthorPhotoPath, Model.DefaultAvatarPath);
+                        var media = post.Media.FirstOrDefault();
+                        <article class="profile-card profile-post" data-post-id="@post.PostId">
+                            <div class="profile-post__header">
+                                <img src="@postAvatar" alt="@post.AuthorName" />
+                                <div>
+                                    <h3>@post.AuthorName</h3>
+                                    <p>@(post.CreateAt?.ToString("dd/MM/yyyy HH:mm") ?? "Vừa xong")</p>
+                                </div>
+                                <div class="profile-post__menu">
+                                    <button class="post-menu-btn" type="button" aria-label="Tùy chọn bài viết">•••</button>
+                                    <div class="post-menu" hidden>
+                                        <button class="js-edit-post" type="button">Sửa bài viết</button>
+                                        <button class="js-delete-post post-menu__danger" type="button">Xóa bài viết</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (!string.IsNullOrWhiteSpace(post.Content))
+                            {
+                                <p class="profile-post__content">@post.Content</p>
+                            }
+
+                            @if (media != null)
+                            {
+                                <img class="profile-post__image" src="@media.MediaUrl" alt="Ảnh bài viết" />
+                            }
+
+                            <div class="profile-post__actions">
+                                <button type="button">Thích</button>
+                                <button type="button">Bình luận</button>
+                                <button type="button">Chia sẻ</button>
+                            </div>
+                        </article>
+                    }
+                </div>
+            </section>
+        </div>
+    </section>
+
+    <div class="profile-modal" id="editProfileModal" hidden>
+        <div class="profile-modal__overlay" data-close-modal></div>
+        <form class="profile-modal__panel" id="editProfileForm">
+            <div class="profile-modal__head">
+                <h2>Chỉnh sửa trang cá nhân</h2>
+                <button type="button" data-close-modal aria-label="Đóng">×</button>
+            </div>
+
+            <label class="profile-field">
+                <span>Họ và tên</span>
+                <input name="accountName" id="profileAccountNameInput" type="text" value="@Model.User.AccountName" maxlength="100" />
+            </label>
+
+            <label class="profile-field">
+                <span>Tiểu sử</span>
+                <textarea name="bio" id="profileBioInput" rows="4" maxlength="500">@Model.User.Bio</textarea>
+            </label>
+
+            <div class="profile-field-grid">
+                <label class="profile-field">
+                    <span>Ngày sinh</span>
+                    <input name="dateOfBirth" id="profileDobInput" type="date" value="@Model.User.DateOfBirth?.ToString("yyyy-MM-dd")" />
+                </label>
+
+                <label class="profile-field">
+                    <span>Giới tính</span>
+                    <select name="gender" id="profileGenderInput">
+                        <option value="">Chưa cập nhật</option>
+                        <option value="1" selected="@(Model.User.Gender == 1)">Nam</option>
+                        <option value="2" selected="@(Model.User.Gender == 2)">Nữ</option>
+                        <option value="3" selected="@(Model.User.Gender == 3)">Khác</option>
+                    </select>
+                </label>
+            </div>
+
+            <div class="profile-modal__actions">
+                <button class="profile-btn profile-btn--danger" id="clearProfileInfo" type="button">Xóa thông tin phụ</button>
+                <span></span>
+                <button class="profile-btn" type="button" data-close-modal>Hủy</button>
+                <button class="profile-btn profile-btn--primary" type="submit">Lưu</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="profile-modal" id="postModal" hidden>
+        <div class="profile-modal__overlay" data-close-modal></div>
+        <form class="profile-modal__panel" id="postForm">
+            <div class="profile-modal__head">
+                <h2 id="postModalTitle">Tạo bài viết</h2>
+                <button type="button" data-close-modal aria-label="Đóng">×</button>
+            </div>
+
+            <div class="profile-post-author">
+                <img src="@avatar" alt="@Model.User.AccountName" />
+                <strong>@Model.User.AccountName</strong>
+            </div>
+
+            <textarea class="post-editor" name="content" id="postContentInput" rows="5" placeholder="Bạn đang nghĩ gì?"></textarea>
+
+            <div class="post-image-preview" id="postImagePreview" hidden>
+                <img alt="Ảnh xem trước" />
+                <button type="button" id="removePostImage">×</button>
+            </div>
+
+            <label class="post-file-picker" id="postFilePicker">
+                <input id="postFileInput" name="file" type="file" accept="image/*" hidden />
+                <span>🖼️</span>
+                <strong>Thêm ảnh vào bài viết</strong>
+            </label>
+
+            <div class="profile-modal__actions">
+                <span></span>
+                <button class="profile-btn" type="button" data-close-modal>Hủy</button>
+                <button class="profile-btn profile-btn--primary" id="submitPostBtn" type="submit">Đăng</button>
+            </div>
+        </form>
+    </div>
+</main>
+
+@section Scripts {
+    <script type="module" src="~/js/pages/profile/main.js" asp-append-version="true"></script>
+}

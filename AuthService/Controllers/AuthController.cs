@@ -16,6 +16,24 @@ namespace AuthService.Controllers
             _context = context;
         }
 
+        [HttpGet("exists")]
+        public async Task<IActionResult> Exists([FromQuery] string email)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(email))
+                    return BadRequest(new { exists = false, message = "Email is required." });
+
+                var normalizedEmail = email.Trim().ToLower();
+                var exists = await _context.Accounts.AnyAsync(u => u.Email.ToLower() == normalizedEmail);
+                return Ok(new { exists });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { exists = false, message = ex.Message });
+            }
+        }
+
         [HttpPost("login")]
         public async Task<IActionResult> login([FromBody] ReqLogin req)
         {

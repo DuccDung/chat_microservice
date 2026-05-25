@@ -1,0 +1,97 @@
+﻿version: '3.8'
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - SA_PASSWORD=Strong!Pass123
+      - ACCEPT_EULA=Y
+      - MSSQL_PID=Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P Strong!Pass123 -Q 'SELECT 1'"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
+
+  gateway:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./gateway/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - webserver
+    networks:
+      - frontend
+      - backend
+
+  authservice:
+    image: authservice:test
+    environment:
+      - DB_Connection=Server=sqlserver,1433;Database=social_network;User Id=sa;Password=Strong!Pass123;TrustServerCertificate=true
+      - WebServer_Origin=http://gateway
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    networks:
+      - backend
+
+  userservice:
+    image: userservice:test
+    environment:
+      - DB_Connection=Server=sqlserver,1433;Database=social_network;User Id=sa;Password=Strong!Pass123;TrustServerCertificate=true
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    networks:
+      - backend
+
+  messagecallservice:
+    image: messagecallservice:test
+    environment:
+      - DB_Connection=Server=sqlserver,1433;Database=social_network;User Id=sa;Password=Strong!Pass123;TrustServerCertificate=true
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    networks:
+      - backend
+
+  notificationservice:
+    image: notificationservice:test
+    environment:
+      - DB_Connection=Server=sqlserver,1433;Database=social_network;User Id=sa;Password=Strong!Pass123;TrustServerCertificate=true
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    networks:
+      - backend
+
+  webserver:
+    image: webserver:test
+    environment:
+      - ApiClients__Auth__BaseUrl=http://authservice:8080
+      - ApiClients__Users__BaseUrl=http://userservice:8080
+      - ApiClients__Conversations__BaseUrl=http://messagecallservice:8080
+      - ApiClients__Notifications__BaseUrl=http://notificationservice:8080
+    depends_on:
+      - authservice
+      - userservice
+      - messagecallservice
+      - notificationservice
+    networks:
+      - frontend
+      - backend
+
+volumes:
+  sqlserver_data:
+
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge

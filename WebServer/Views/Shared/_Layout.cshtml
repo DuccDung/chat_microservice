@@ -6,11 +6,12 @@
     <title>Messenger</title>
     <link rel="stylesheet" href="~/css/pages/home/main.css" asp-append-version="true" />
     <link rel="icon" href="~/assets/icons/facebook.svg" />
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
     @await Html.PartialAsync("Partials/_Topbar")
     @RenderBody()
-    <div class="modal" id="form_modal-main"></div>
+    <div class="modal-host" id="form_modal-main"></div>
 
     <div id="appModal" class="app_modal" hidden aria-hidden="true">
         <div class="app_modal__overlay" data-modal-close="overlay"></div>
@@ -27,4 +28,5 @@
 <script type="module" src="~/js/pages/chat/chat_realtime.js" asp-append-version="true"></script>
 <script type="module" src="~/js/pages/chat/mobile_sidebar.js" asp-append-version="true"></script>
 <script type="module" src="~/js/pages/chat/video-call-ui.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
 </html>

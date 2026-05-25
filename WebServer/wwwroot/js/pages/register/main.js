@@ -56,6 +56,15 @@ const confirmField = $("confirm-field");
 const confirmInput = $("signup-confirm-password");
 const confirmError = $("confirm-error");
 
+const otpPanel = $("otp-panel");
+const otpField = $("otp-field");
+const otpInput = $("signup-otp");
+const otpError = $("otp-error");
+const otpSentText = $("otp-sent-text");
+const submitBtn = $("signup-submit");
+const resendOtpBtn = $("resend-otp");
+const editInfoBtn = $("edit-register-info");
+
 // Eye toggles
 setupEyeToggle(passInput, passField, $("toggle-pass"));
 setupEyeToggle(confirmInput, confirmField, $("toggle-confirm"));
@@ -65,33 +74,55 @@ nameInput.addEventListener("input", () => clearFieldError(nameField, nameError))
 contactInput.addEventListener("input", () => clearFieldError(contactField, contactError));
 passInput.addEventListener("input", () => clearFieldError(passField, passError));
 confirmInput.addEventListener("input", () => clearFieldError(confirmField, confirmError));
+otpInput.addEventListener("input", () => {
+    otpInput.value = otpInput.value.replace(/\D/g, "").slice(0, 6);
+    clearFieldError(otpField, otpError);
+});
 
 // Simple validators
 function isValidEmail(v) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 }
-function isValidPhone(v) {
-    return /^\d{9,11}$/.test(v.replace(/\s/g, ""));
-}
 
 let submitting = false;
+let otpStep = false;
+let pendingRegister = null;
 
-form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    if (submitting) return;
+function setRegisterFieldsDisabled(disabled) {
+    nameInput.disabled = disabled;
+    contactInput.disabled = disabled;
+    passInput.disabled = disabled;
+    confirmInput.disabled = disabled;
+    $("toggle-pass").disabled = disabled;
+    $("toggle-confirm").disabled = disabled;
+}
 
-    // reset previous errors
+function getErrorMessage(err, fallback) {
+    const data = err?.response?.data;
+    if (!data) return fallback;
+    if (typeof data === "object") return data.message || fallback;
+    if (typeof data === "string") {
+        try {
+            const parsed = JSON.parse(data);
+            return parsed.message || data || fallback;
+        } catch {
+            return data || fallback;
+        }
+    }
+    return fallback;
+}
+
+function validateRegisterFields() {
     clearFieldError(nameField, nameError);
     clearFieldError(contactField, contactError);
     clearFieldError(passField, passError);
     clearFieldError(confirmField, confirmError);
 
     const accountName = nameInput.value.trim();
-    const contactVal = contactInput.value.trim();
+    const email = contactInput.value.trim();
     const password = passInput.value;
     const confirmPassword = confirmInput.value;
 
-    // ===== Validate (sync) =====
     let ok = true;
 
     if (!accountName) {
@@ -99,8 +130,8 @@ form.addEventListener("submit", async (e) => {
         ok = false;
     }
 
-    if (!contactVal || !(isValidEmail(contactVal) || isValidPhone(contactVal))) {
-        setFieldError(contactField, contactError, "Vui lòng nhập email hoặc số di động hợp lệ.");
+    if (!email || !isValidEmail(email)) {
+        setFieldError(contactField, contactError, "Vui lòng nhập email hợp lệ.");
         ok = false;
     }
 
@@ -114,26 +145,89 @@ form.addEventListener("submit", async (e) => {
         ok = false;
     }
 
-    if (!ok) return;
+    return ok ? { accountName, email, password } : null;
+}
 
-    // ===== Call API (async) =====
+async function sendOtp() {
+    const values = validateRegisterFields();
+    if (!values) return;
+
     submitting = true;
     load(true);
     try {
-        const res = await authService.register(accountName, contactVal, password);
-        
-        if (res.status === 200 || res.status === 201) {
-            alert("Đăng kí thành công!");
-            window.location.replace("/auth/login");
-        } else {
-            alert("Tài khoản đã tồn tại!");
+        const res = await authService.sendRegisterOtp(values.accountName, values.email, values.password);
+        if (res.status === 200) {
+            pendingRegister = values;
+            otpStep = true;
+            otpPanel.hidden = false;
+            otpSentText.textContent = `Nhập mã gồm 6 số đã gửi tới ${values.email}.`;
+            submitBtn.textContent = "Xác nhận đăng ký";
+            setRegisterFieldsDisabled(true);
+            otpInput.focus();
         }
     } catch (err) {
-        load(false);
-        console.error("Error during registration:", err);
-        alert("Tài khoản đã tồn tại!");
+        console.error("Error while sending register OTP:", err);
+        alert(getErrorMessage(err, "Không thể gửi mã OTP. Vui lòng thử lại."));
     } finally {
         load(false);
         submitting = false;
     }
+}
+
+async function verifyOtp() {
+    clearFieldError(otpField, otpError);
+
+    const otp = otpInput.value.trim();
+    if (!/^\d{6}$/.test(otp)) {
+        setFieldError(otpField, otpError, "Vui lòng nhập mã OTP gồm 6 số.");
+        return;
+    }
+
+    if (!pendingRegister) {
+        otpStep = false;
+        otpPanel.hidden = true;
+        setRegisterFieldsDisabled(false);
+        submitBtn.textContent = "Gửi mã OTP";
+        return;
+    }
+
+    submitting = true;
+    load(true);
+    try {
+        const res = await authService.verifyRegisterOtp(pendingRegister.email, otp);
+
+        if (res.status === 200 || res.status === 201) {
+            alert("Đăng kí thành công!");
+            window.location.replace("/auth/login");
+        }
+    } catch (err) {
+        console.error("Error during OTP verification:", err);
+        setFieldError(otpField, otpError, getErrorMessage(err, "Mã OTP không đúng hoặc đã hết hạn."));
+    } finally {
+        load(false);
+        submitting = false;
+    }
+}
+
+editInfoBtn.addEventListener("click", () => {
+    otpStep = false;
+    otpPanel.hidden = true;
+    otpInput.value = "";
+    pendingRegister = null;
+    setRegisterFieldsDisabled(false);
+    submitBtn.textContent = "Gửi mã OTP";
+    contactInput.focus();
+});
+
+resendOtpBtn.addEventListener("click", async () => {
+    if (submitting) return;
+    await sendOtp();
+});
+
+form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (submitting) return;
+
+    if (!otpStep) await sendOtp();
+    else await verifyOtp();
 });

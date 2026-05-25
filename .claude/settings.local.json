@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path . -Directory)",
+      "Bash(Select-Object Name)",
+      "PowerShell(docker info *)",
+      "PowerShell(docker volume ls *)",
+      "PowerShell(docker network ls *)",
+      "Bash(dotnet build *)",
+      "Bash(docker build *)",
+      "Bash(docker-compose up *)",
+      "Bash(docker-compose ps *)",
+      "Bash(Get-Content *)",
+      "Bash(docker-compose config *)",
+      "Bash(docker volume *)",
+      "Bash(docker-compose down *)",
+      "Bash(docker exec systemchatboxrealtime-sqlserver-1 *)",
+      "Bash(docker run *)",
+      "Bash(findstr :1433)",
+      "PowerShell(docker exec systemchatboxrealtime-sqlserver-1 *)",
+      "Bash(curl -s http://localhost)",
+      "PowerShell(New-Item *)",
+      "PowerShell(docker-compose *)",
+      "PowerShell(Start-Sleep -Seconds 10; docker images | Select-String -Pattern \"userservice|messagecallservice|notificationservice\" | ForEach-Object { $_.Line })",
+      "PowerShell(docker exec systemchatboxrealtime-userservice-1 *)"
+    ]
+  }
+}

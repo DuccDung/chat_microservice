@@ -52,7 +52,7 @@
                   name="contact"
                   type="text"
                   inputmode="email"
-                  placeholder="Email hoặc số di động"
+                  placeholder="Email"
                   autocomplete="username"
                   aria-describedby="contact-error"
                 />
@@ -72,7 +72,7 @@
                   role="alert"
                   aria-live="polite"
                 >
-                  Vui lòng nhập email hoặc số di động hợp lệ.
+                  Vui lòng nhập email hợp lệ.
                 </div>
               </div>
 
@@ -230,7 +230,51 @@
                 </div>
               </div>
 
-              <button class="btn" type="submit">Đăng ký</button>
+              <section class="otp-panel" id="otp-panel" aria-live="polite" hidden>
+                <div class="otp-head">
+                  <div>
+                    <h3>Xác thực email</h3>
+                    <p id="otp-sent-text">Nhập mã gồm 6 số đã gửi tới email của bạn.</p>
+                  </div>
+                </div>
+
+                <div class="field otp-field" id="otp-field">
+                  <input id="signup-otp"
+                    name="otp"
+                    type="text"
+                    inputmode="numeric"
+                    maxlength="6"
+                    placeholder="Mã OTP"
+                    autocomplete="one-time-code"
+                    aria-describedby="otp-error"
+                  />
+                  <svg
+                    class="icon-inline icon-alert"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fill="currentColor"
+                      d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2V9h2v5z"
+                    />
+                  </svg>
+                  <div
+                    id="otp-error"
+                    class="error-text"
+                    role="alert"
+                    aria-live="polite"
+                  >
+                    Vui lòng nhập mã OTP gồm 6 số.
+                  </div>
+                </div>
+
+                <div class="otp-actions">
+                  <button class="ghost-btn" id="edit-register-info" type="button">Sửa thông tin</button>
+                  <button class="ghost-btn" id="resend-otp" type="button">Gửi lại mã</button>
+                </div>
+              </section>
+
+              <button class="btn" id="signup-submit" type="submit">Gửi mã OTP</button>
 
               <a class="link" asp-controller="Auth" asp-action="Login">Bạn đã có tài khoản? Đăng nhập</a>
               <div class="notice">

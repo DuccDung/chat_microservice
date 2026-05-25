@@ -7,5 +7,6 @@ namespace WebServer.Interfaces
     {
         Task<ResLoginDto> LoginAsync(LoginVm vm, CancellationToken ct = default);
         Task<ResRegisterDto> RegisterAsync(RegisterVm vm, CancellationToken ct = default);
+        Task<bool> EmailExistsAsync(string email, CancellationToken ct = default);
     }
 }

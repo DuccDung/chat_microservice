@@ -1,0 +1,183 @@
+/* --- Overlay mờ đè lên toàn trang --- */
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(255,255,255,0.8);
+    backdrop-filter: blur(6px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999999; /* đảm bảo luôn nằm trên cùng */
+}
+
+.hidden {
+    display: none;
+}
+
+/* --- Khung popup --- */
+.modal-content {
+    width: 650px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    animation: fadeIn 0.2s ease;
+}
+
+/* --- Header của popup --- */
+.modal-header {
+    padding: 16px;
+    border-bottom: 1px solid #e5e5e5;
+    display: flex;
+    justify-content: center;
+    position: relative;
+}
+
+.modal-title {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.modal-close {
+    position: absolute;
+    right: 16px;
+    top: 10px;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 4px 10px;
+    border-radius: 50%;
+}
+
+.modal-close:hover {
+    background: #f0f2f5;
+}
+
+/* --- Tabs --- */
+.modal-tabs {
+    display: flex;
+    gap: 30px;
+    padding: 12px 20px 0 20px;
+}
+
+.tab {
+    width: 50%;  
+    text-align: center;
+    padding: 10px 6px;
+    cursor: pointer;
+    font-size: 15px;
+    color: #444;
+    position: relative;
+}
+
+.tab.active {
+    font-weight: 600;
+    color: #1877f2;
+}
+
+/* --- Gạch xanh dưới tab đang chọn --- */
+.tab.active::after {
+    content: "";
+    width: 100%;
+    height: 3px;
+    background: #1877f2;
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    border-radius: 2px;
+}
+
+/* --- Body của modal --- */
+.modal-body {
+    padding: 25px;
+    min-height: 500px;
+}
+
+.tab-content {
+    display: none;
+}
+
+.active-tab {
+    display: block;
+}
+
+/* --- Animation popup --- */
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.96); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+/*chỉnh sửa ảnh bìa*/
+.cover-editor {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 48px;
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(2px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    color: white;
+    font-size: 15px;
+    z-index: 99999;
+}
+
+.cover-editor .editor-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.cover-editor .editor-left i {
+    font-size: 18px;
+}
+
+.editor-right {
+    display: flex;
+    gap: 10px;
+}
+
+.cancel-btn {
+    background: rgba(255, 255, 255, 0.25);
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.cancel-btn:hover {
+    background: rgba(255, 255, 255, 0.35);
+}
+
+.save-btn {
+    background: #1877f2;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.save-btn:hover {
+    background: #166fe5;
+}
+
+.hidden {
+    display: none!important;
+}
+
+#form_modal-main.modal:empty {
+    position: static;
+    inset: auto;
+    width: auto;
+    height: auto;
+    background: transparent;
+    backdrop-filter: none;
+    display: block;
+    z-index: auto;
+    pointer-events: none;
+}

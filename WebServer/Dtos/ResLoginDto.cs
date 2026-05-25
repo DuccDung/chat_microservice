@@ -50,4 +50,19 @@ namespace WebServer.Dtos
         [JsonPropertyName("message")]
         public string Message { get; set; } = "";
     }
+
+    public class VerifyRegisterOtpDto
+    {
+        [JsonPropertyName("email")]
+        public string Email { get; set; } = "";
+
+        [JsonPropertyName("otp")]
+        public string Otp { get; set; } = "";
+    }
+
+    public class AccountExistsDto
+    {
+        [JsonPropertyName("exists")]
+        public bool Exists { get; set; }
+    }
 }

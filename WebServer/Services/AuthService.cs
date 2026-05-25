@@ -66,5 +66,18 @@ namespace WebServer.Services
                 throw new Exception("Error during registration", ex);
             }
         }
+
+        public async Task<bool> EmailExistsAsync(string email, CancellationToken ct = default)
+        {
+            if (string.IsNullOrWhiteSpace(email)) return false;
+
+            var safeEmail = Uri.EscapeDataString(email.Trim());
+            var res = await _http.GetAsync($"api/auth/exists?email={safeEmail}", ct);
+            if (!res.IsSuccessStatusCode)
+                throw new Exception(await res.Content.ReadAsStringAsync(ct));
+
+            var data = await res.Content.ReadFromJsonAsync<AccountExistsDto>(ct);
+            return data?.Exists == true;
+        }
     }
 }

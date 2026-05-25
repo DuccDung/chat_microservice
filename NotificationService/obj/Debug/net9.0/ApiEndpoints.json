@@ -1,6 +1,6 @@
 [
   {
-    "ContainingType": "ApplicationServer.Controllers.NotificationsController",
+    "ContainingType": "AuthService.Controllers.NotificationsController",
     "Method": "Create",
     "RelativePath": "api/notifications",
     "HttpMethod": "POST",
@@ -9,14 +9,14 @@
     "Parameters": [
       {
         "Name": "req",
-        "Type": "ApplicationServer.Dtos.Notifications.CreateNotificationRequest",
+        "Type": "AuthService.Dtos.Notifications.CreateNotificationRequest",
         "IsRequired": true
       }
     ],
     "ReturnTypes": []
   },
   {
-    "ContainingType": "ApplicationServer.Controllers.NotificationsController",
+    "ContainingType": "AuthService.Controllers.NotificationsController",
     "Method": "GetByConsumer",
     "RelativePath": "api/notifications",
     "HttpMethod": "GET",
@@ -37,7 +37,7 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "ApplicationServer.Controllers.NotificationsController",
+    "ContainingType": "AuthService.Controllers.NotificationsController",
     "Method": "MarkRead",
     "RelativePath": "api/notifications/{notificationId}/mark-read",
     "HttpMethod": "POST",
@@ -56,5 +56,21 @@
       }
     ],
     "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Program\u002B\u003C\u003Ec",
+    "Method": "\u003C\u003CMain\u003E$\u003Eb__0_1",
+    "RelativePath": "health",
+    "HttpMethod": "GET",
+    "IsController": false,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Void",
+        "MediaTypes": [],
+        "StatusCode": 200
+      }
+    ]
   }
 ]
