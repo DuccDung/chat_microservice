@@ -18,6 +18,16 @@ services:
       retries: 20
       start_period: 60s
 
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    networks:
+      - backend
+
   gateway:
     image: nginx:alpine
     ports:
@@ -33,6 +43,7 @@ services:
   authservice:
     image: authservice:test
     environment:
+      - ASPNETCORE_HTTP_PORTS=5007
       - DB_Connection=Server=sqlserver,1433;Database=social_network;User Id=sa;Password=Strong!Pass123;TrustServerCertificate=true
       - WebServer_Origin=http://gateway
     depends_on:
@@ -44,7 +55,10 @@ services:
   userservice:
     image: userservice:test
     environment:
+      - ASPNETCORE_HTTP_PORTS=5183
       - DB_Connection=Server=sqlserver,1433;Database=social_network;User Id=sa;Password=Strong!Pass123;TrustServerCertificate=true
+      - Redis__ConnectionString=redis:6379,abortConnect=false
+      - Redis__InstanceName=chatbox:userservice:
     depends_on:
       sqlserver:
         condition: service_healthy
@@ -54,7 +68,10 @@ services:
   messagecallservice:
     image: messagecallservice:test
     environment:
+      - ASPNETCORE_HTTP_PORTS=5226
       - DB_Connection=Server=sqlserver,1433;Database=social_network;User Id=sa;Password=Strong!Pass123;TrustServerCertificate=true
+      - Redis__ConnectionString=redis:6379,abortConnect=false
+      - Redis__InstanceName=chatbox:messagecallservice:
     depends_on:
       sqlserver:
         condition: service_healthy
@@ -64,7 +81,10 @@ services:
   notificationservice:
     image: notificationservice:test
     environment:
+      - ASPNETCORE_HTTP_PORTS=5206
       - DB_Connection=Server=sqlserver,1433;Database=social_network;User Id=sa;Password=Strong!Pass123;TrustServerCertificate=true
+      - Redis__ConnectionString=redis:6379,abortConnect=false
+      - Redis__InstanceName=chatbox:notificationservice:
     depends_on:
       sqlserver:
         condition: service_healthy
@@ -74,10 +94,11 @@ services:
   webserver:
     image: webserver:test
     environment:
-      - ApiClients__Auth__BaseUrl=http://authservice:8080
-      - ApiClients__Users__BaseUrl=http://userservice:8080
-      - ApiClients__Conversations__BaseUrl=http://messagecallservice:8080
-      - ApiClients__Notifications__BaseUrl=http://notificationservice:8080
+      - ASPNETCORE_HTTP_PORTS=5296
+      - ApiClients__Auth__BaseUrl=http://authservice:5007
+      - ApiClients__Users__BaseUrl=http://userservice:5183
+      - ApiClients__Conversations__BaseUrl=http://messagecallservice:5226
+      - ApiClients__Notifications__BaseUrl=http://notificationservice:5206
     depends_on:
       - authservice
       - userservice
@@ -89,6 +110,7 @@ services:
 
 volumes:
   sqlserver_data:
+  redis_data:
 
 networks:
   frontend:

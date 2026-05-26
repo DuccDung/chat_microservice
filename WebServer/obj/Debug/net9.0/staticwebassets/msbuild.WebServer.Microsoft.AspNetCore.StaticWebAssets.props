@@ -1218,8 +1218,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>1qeskhnbmq</Fingerprint>
-      <Integrity>dx4RsPbYtFeWrE56yY4Mv6iGDTPZon1Ig3jH0NrHL80=</Integrity>
+      <Fingerprint>x3wz07w4nn</Fingerprint>
+      <Integrity>TQnCuHkNfSQbPp+NmvGsNidCZMi+848pgjBZXHqhdso=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\pages\home\main.css'))</OriginalItemSpec>
@@ -1416,8 +1416,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>3e5ony25mk</Fingerprint>
-      <Integrity>S9Czna0ovpIy5VeM/KQyWFJnCumENcStPrh+GFej5Rs=</Integrity>
+      <Fingerprint>egj0g9lfyo</Fingerprint>
+      <Integrity>fkYur4dEas4/QYoYE9Chys5mEZRMWQ+WerTB/TSwMtg=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\pages\chat\chat_composer.js'))</OriginalItemSpec>
@@ -1440,6 +1440,24 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\pages\chat\chat_realtime.js'))</OriginalItemSpec>
     </StaticWebAsset>
+    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\pages\chat\group-webrtc-service.js'))">
+      <SourceType>Package</SourceType>
+      <SourceId>WebServer</SourceId>
+      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
+      <BasePath>_content/WebServer</BasePath>
+      <RelativePath>js/pages/chat/group-webrtc-service.js</RelativePath>
+      <AssetKind>All</AssetKind>
+      <AssetMode>All</AssetMode>
+      <AssetRole>Primary</AssetRole>
+      <RelatedAsset></RelatedAsset>
+      <AssetTraitName></AssetTraitName>
+      <AssetTraitValue></AssetTraitValue>
+      <Fingerprint>eq34qy2sjv</Fingerprint>
+      <Integrity>GtJMXmPlV3LbhK39GT3eb+V6JKDNlussLVcblVqsWG8=</Integrity>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\pages\chat\group-webrtc-service.js'))</OriginalItemSpec>
+    </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\pages\chat\handle_choice_item_threads.js'))">
       <SourceType>Package</SourceType>
       <SourceId>WebServer</SourceId>
@@ -1452,8 +1470,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>sey7voe10x</Fingerprint>
-      <Integrity>DFf7u5f410ekytd7RmgXy+h+nwxNE+Y2FXyWf5v0taE=</Integrity>
+      <Fingerprint>8obfc52nlj</Fingerprint>
+      <Integrity>KHdV+NIqbkbvAVJ6U0wFsaUIe0mxpRwzb8AfZMPmXos=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\pages\chat\handle_choice_item_threads.js'))</OriginalItemSpec>
@@ -1506,8 +1524,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>wopiw2dq13</Fingerprint>
-      <Integrity>cPX1BdMBY/rx0+2R2O4+V7M0sD1ujSk6mfVrFLhqRB0=</Integrity>
+      <Fingerprint>q0hc1j01fk</Fingerprint>
+      <Integrity>1hFGyW8vXyymPPqVwaMzeT+Jvio12ykAWl8o1kyVY0w=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\pages\chat\threads.js'))</OriginalItemSpec>
@@ -1524,8 +1542,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>0zi9nyidhb</Fingerprint>
-      <Integrity>tJjMpSQbsBXVZM3aTYi+dyx6HpXImsNB1C3owLESWfM=</Integrity>
+      <Fingerprint>ehyf1gm3xs</Fingerprint>
+      <Integrity>rqKZVi6SJvrkeaNpS00NPdwdau+vFPlmpdUnWBNlof8=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\pages\chat\video-call-ui.js'))</OriginalItemSpec>
@@ -1614,8 +1632,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>b0n6z82txi</Fingerprint>
-      <Integrity>BcNggyQvjiDUKbjGw/IHFSGy5W3fGww9zZkHjPpEqdM=</Integrity>
+      <Fingerprint>om3f7jul6j</Fingerprint>
+      <Integrity>IHNpAvxLFWVBqPjpV2FkVDf4Dh+htBai0jihxL1eVTE=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\services\chatService.js'))</OriginalItemSpec>
@@ -1632,8 +1650,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>ppyk0e5a47</Fingerprint>
-      <Integrity>Q0sSOt8cIkSzVrNHvOpY4L+Dmrp6/6aKlaBrC7A1gXQ=</Integrity>
+      <Fingerprint>9ncdj3a3bc</Fingerprint>
+      <Integrity>uz/DVHMS4Z+/blenS69H55hhyVeLtKg/6aIEqUBFXxM=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\services\ws-client.js'))</OriginalItemSpec>
@@ -1763,6 +1781,24 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\chat\c5de9ea059f348c5aa1f034392534ca9.webp'))</OriginalItemSpec>
+    </StaticWebAsset>
+    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\chat\ffdd789813f04f05b3bf35d9e5b9609f.png'))">
+      <SourceType>Package</SourceType>
+      <SourceId>WebServer</SourceId>
+      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
+      <BasePath>_content/WebServer</BasePath>
+      <RelativePath>uploads/chat/ffdd789813f04f05b3bf35d9e5b9609f.png</RelativePath>
+      <AssetKind>All</AssetKind>
+      <AssetMode>All</AssetMode>
+      <AssetRole>Primary</AssetRole>
+      <RelatedAsset></RelatedAsset>
+      <AssetTraitName></AssetTraitName>
+      <AssetTraitValue></AssetTraitValue>
+      <Fingerprint>5nnlugphxc</Fingerprint>
+      <Integrity>D6dZL0L7xKyy0q2+fBvgaufiN9K0sNtj8tL1XGSPMwI=</Integrity>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\chat\ffdd789813f04f05b3bf35d9e5b9609f.png'))</OriginalItemSpec>
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\groups\326b3dee0a324f8ab1d812e55963fcf5.png'))">
       <SourceType>Package</SourceType>

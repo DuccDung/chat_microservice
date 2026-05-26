@@ -10,6 +10,7 @@ export async function loadThreads() {
         load(true);
         const res = await chatService.getThreadsView();
         threadsContainer.innerHTML = res.data;
+        threadsContainer.dispatchEvent(new CustomEvent("threads:loaded"));
         load(false);
     } catch (e) {
         console.log(e);

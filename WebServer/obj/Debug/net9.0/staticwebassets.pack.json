@@ -325,6 +325,10 @@
       "PackagePath": "staticwebassets\\js\\pages\\chat\\chat_realtime.js"
     },
     {
+      "Id": "D:\\laptrinhweb\\code_outsrc\\SystemChatBoxRealtime\\microservice\\SystemChatBoxRealtime\\WebServer\\wwwroot\\js\\pages\\chat\\group-webrtc-service.js",
+      "PackagePath": "staticwebassets\\js\\pages\\chat\\group-webrtc-service.js"
+    },
+    {
       "Id": "D:\\laptrinhweb\\code_outsrc\\SystemChatBoxRealtime\\microservice\\SystemChatBoxRealtime\\WebServer\\wwwroot\\js\\pages\\chat\\handle_choice_item_threads.js",
       "PackagePath": "staticwebassets\\js\\pages\\chat\\handle_choice_item_threads.js"
     },
@@ -395,6 +399,10 @@
     {
       "Id": "D:\\laptrinhweb\\code_outsrc\\SystemChatBoxRealtime\\microservice\\SystemChatBoxRealtime\\WebServer\\wwwroot\\uploads\\chat\\c5de9ea059f348c5aa1f034392534ca9.webp",
       "PackagePath": "staticwebassets\\uploads\\chat\\c5de9ea059f348c5aa1f034392534ca9.webp"
+    },
+    {
+      "Id": "D:\\laptrinhweb\\code_outsrc\\SystemChatBoxRealtime\\microservice\\SystemChatBoxRealtime\\WebServer\\wwwroot\\uploads\\chat\\ffdd789813f04f05b3bf35d9e5b9609f.png",
+      "PackagePath": "staticwebassets\\uploads\\chat\\ffdd789813f04f05b3bf35d9e5b9609f.png"
     },
     {
       "Id": "D:\\laptrinhweb\\code_outsrc\\SystemChatBoxRealtime\\microservice\\SystemChatBoxRealtime\\WebServer\\wwwroot\\uploads\\groups\\326b3dee0a324f8ab1d812e55963fcf5.png",

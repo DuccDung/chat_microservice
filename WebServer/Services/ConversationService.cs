@@ -124,13 +124,19 @@ namespace WebServer.Services
                 ?? throw new Exception("Join group response is empty.");
         }
 
-        public async Task<GroupInfoDto> UpdateGroupAsync(int conversationId, int ownerId, string? title, string? avatarUrl)
+        public async Task<GroupInfoDto> UpdateGroupAsync(
+            int conversationId,
+            int ownerId,
+            string? title,
+            string? avatarUrl,
+            bool? ownerOnlyMessages)
         {
             var body = new UpdateGroupConversationRequestDto
             {
                 OwnerId = ownerId,
                 Title = title,
-                AvatarUrl = avatarUrl
+                AvatarUrl = avatarUrl,
+                OwnerOnlyMessages = ownerOnlyMessages
             };
 
             var res = await _http.PutAsJsonAsync($"api/conversations/{conversationId}/group", body);
@@ -219,7 +225,7 @@ namespace WebServer.Services
             }
 
             var data = await res.Content.ReadFromJsonAsync<ConversationMessageDto>();
-            return data!;
+            return data ?? throw new Exception("Send image succeeded but response body is empty.");
         }
 
         /// NEW: POST gửi text lên AppServer
@@ -285,8 +291,14 @@ namespace WebServer.Services
                 $"api/conversations/{conversationId}/messages/audio",
                 body);
 
+            if (!res.IsSuccessStatusCode)
+            {
+                var err = await res.Content.ReadAsStringAsync();
+                throw new Exception($"Send audio failed. Status: {res.StatusCode}. Body: {err}");
+            }
+
             var data = await res.Content.ReadFromJsonAsync<ConversationMessageDto>();
-            return data!;
+            return data ?? throw new Exception("Send audio succeeded but response body is empty.");
         }
 
         public async Task<ConversationPeerResponseDto?> GetPeerAsync(int conversationId, int meAccountId)

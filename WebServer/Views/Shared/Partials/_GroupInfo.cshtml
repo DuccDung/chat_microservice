@@ -67,6 +67,36 @@
             </div>
         </section>
 
+        <section class="group_manage__section group_manage__permission_section">
+            <div class="group_manage__section_header">
+                <h3>Quyền gửi tin nhắn</h3>
+            </div>
+
+            @if (group.IsOwner)
+            {
+                <label class="group_manage__switch_row" for="groupOwnerOnlyMessages">
+                    <span class="group_manage__switch_text">
+                        <span class="group_manage__switch_title">Chỉ trưởng nhóm được nhắn</span>
+                        <span class="group_manage__switch_hint">Khi bật, thành viên vẫn xem được tin nhắn nhưng không thể gửi tin mới.</span>
+                    </span>
+                    <span class="group_manage__switch">
+                        <input id="groupOwnerOnlyMessages"
+                               class="group_manage__owner_only_input"
+                               type="checkbox"
+                               @(group.OwnerOnlyMessages ? "checked" : "") />
+                        <span class="group_manage__switch_slider" aria-hidden="true"></span>
+                    </span>
+                </label>
+            }
+            else
+            {
+                <div class="group_manage__readonly_setting">
+                    <span>Chế độ hiện tại</span>
+                    <strong>@(group.OwnerOnlyMessages ? "Chỉ trưởng nhóm được nhắn" : "Mọi thành viên được nhắn")</strong>
+                </div>
+            }
+        </section>
+
         <section class="group_manage__section">
             <div class="group_manage__section_header">
                 <h3>Liên kết tham gia</h3>

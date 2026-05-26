@@ -151,5 +151,18 @@ namespace WebServer.Services
 
             return SendToUserAsync(toUserId, envelope);
         }
+
+        public Task SendGroupCallToUserAsync(string toUserId, string fromUserId, object payload)
+        {
+            var envelope = new
+            {
+                type = "group.call.event",
+                fromUserId,
+                toUserId,
+                payload
+            };
+
+            return SendToUserAsync(toUserId, envelope);
+        }
     }
 }

@@ -29,12 +29,16 @@ export const chatService = {
     async getGroupInfoView(conversationId) {
         return await api_origin.get(`/chat/groups/${conversationId}`);
     },
-    async updateGroupSettings(conversationId, title, avatarFile = null) {
+    async updateGroupSettings(conversationId, title, avatarFile = null, ownerOnlyMessages = null) {
         const formData = new FormData();
         formData.append("Title", title ?? "");
 
         if (avatarFile) {
             formData.append("Avatar", avatarFile);
+        }
+
+        if (ownerOnlyMessages !== null && ownerOnlyMessages !== undefined) {
+            formData.append("OwnerOnlyMessages", ownerOnlyMessages ? "true" : "false");
         }
 
         return await api_origin.post(`/chat/groups/${conversationId}/settings`, formData, {
@@ -112,6 +116,16 @@ export const callService = {
      async getCallPopup(conversationId, callType = "video") {
         return await api_origin.get("/call/popup", {
             params: { conversationId, callType }
+        });
+    },
+    async getGroupCallPopup(conversationId, callType = "video", roomId = "") {
+        return await api_origin.get("/call/group_popup", {
+            params: { conversationId, callType, roomId }
+        });
+    },
+    async getGroupIncomingPopup(payload) {
+        return await api_origin.get("/call/group_incoming_popup", {
+            params: payload
         });
     }
 };

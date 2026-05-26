@@ -16,6 +16,9 @@ namespace WebServer.Dtos
         [JsonPropertyName("isOwner")]
         public bool IsOwner { get; set; }
 
+        [JsonPropertyName("ownerOnlyMessages")]
+        public bool OwnerOnlyMessages { get; set; }
+
         [JsonPropertyName("name")]
 
         public string Name { get; set; } = "";
@@ -92,6 +95,9 @@ namespace WebServer.Dtos
         [JsonPropertyName("avatarUrl")]
         public string? AvatarUrl { get; set; }
 
+        [JsonPropertyName("ownerOnlyMessages")]
+        public bool OwnerOnlyMessages { get; set; }
+
         [JsonPropertyName("createdAt")]
         public DateTime? CreatedAt { get; set; }
     }
@@ -118,6 +124,9 @@ namespace WebServer.Dtos
 
         [JsonPropertyName("avatarUrl")]
         public string? AvatarUrl { get; set; }
+
+        [JsonPropertyName("ownerOnlyMessages")]
+        public bool? OwnerOnlyMessages { get; set; }
     }
 
     public class LeaveGroupRequestDto
@@ -169,6 +178,9 @@ namespace WebServer.Dtos
 
         [JsonPropertyName("isOwner")]
         public bool IsOwner { get; set; }
+
+        [JsonPropertyName("ownerOnlyMessages")]
+        public bool OwnerOnlyMessages { get; set; }
 
         [JsonPropertyName("members")]
         public List<GroupMemberDto> Members { get; set; } = new();

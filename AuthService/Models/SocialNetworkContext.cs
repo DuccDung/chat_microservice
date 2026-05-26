@@ -103,6 +103,9 @@ public partial class SocialNetworkContext : DbContext
                 .HasMaxLength(255)
                 .IsUnicode(false)
                 .HasColumnName("avatar_url");
+            entity.Property(e => e.OwnerOnlyMessages)
+                .HasDefaultValue(false)
+                .HasColumnName("owner_only_messages");
         });
 
         modelBuilder.Entity<ConversationMember>(entity =>

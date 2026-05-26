@@ -13,6 +13,8 @@ public partial class Conversation
 
     public string? AvatarUrl { get; set; }
 
+    public bool OwnerOnlyMessages { get; set; }
+
     public DateTime? CreatedAt { get; set; }
 
     public virtual ICollection<ConversationMember> ConversationMembers { get; set; } = new List<ConversationMember>();

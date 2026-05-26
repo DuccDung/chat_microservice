@@ -1,6 +1,7 @@
 using AuthService;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SharedKernel.Caching;
 
 namespace UserService.Controllers
 {
@@ -8,11 +9,16 @@ namespace UserService.Controllers
     [Route("api/profile")]
     public class ProfileController : ControllerBase
     {
-        private readonly SocialNetworkContext _context;
+        private static readonly TimeSpan ProfileCacheTtl = TimeSpan.FromMinutes(15);
+        private static readonly TimeSpan ProfilePostsCacheTtl = TimeSpan.FromMinutes(5);
 
-        public ProfileController(SocialNetworkContext context)
+        private readonly SocialNetworkContext _context;
+        private readonly ICacheService _cache;
+
+        public ProfileController(SocialNetworkContext context, ICacheService cache)
         {
             _context = context;
+            _cache = cache;
         }
 
         [HttpGet("{accountId:int}")]
@@ -20,21 +26,25 @@ namespace UserService.Controllers
         {
             if (accountId <= 0) return BadRequest("Invalid account id.");
 
-            var user = await _context.Accounts
-                .AsNoTracking()
-                .Where(x => x.AccountId == accountId)
-                .Select(x => new ProfileAccountDto
-                {
-                    AccountId = x.AccountId,
-                    AccountName = x.AccountName,
-                    Email = x.Email,
-                    PhotoPath = x.PhotoPath,
-                    PhotoBackground = x.PhotoBackground,
-                    DateOfBirth = x.DateOfBirth,
-                    Gender = x.Gender,
-                    Bio = x.Bio
-                })
-                .FirstOrDefaultAsync(ct);
+            var user = await _cache.GetOrCreateAsync(
+                CacheKeys.Profile(accountId),
+                ProfileCacheTtl,
+                async token => await _context.Accounts
+                    .AsNoTracking()
+                    .Where(x => x.AccountId == accountId)
+                    .Select(x => new ProfileAccountDto
+                    {
+                        AccountId = x.AccountId,
+                        AccountName = x.AccountName,
+                        Email = x.Email,
+                        PhotoPath = x.PhotoPath,
+                        PhotoBackground = x.PhotoBackground,
+                        DateOfBirth = x.DateOfBirth,
+                        Gender = x.Gender,
+                        Bio = x.Bio
+                    })
+                    .FirstOrDefaultAsync(token),
+                ct);
 
             return user == null ? NotFound("User not found.") : Ok(user);
         }
@@ -57,6 +67,8 @@ namespace UserService.Controllers
             user.Gender = req.Gender;
 
             await _context.SaveChangesAsync(ct);
+            await InvalidateProfileCacheAsync(user, includePosts: true, ct);
+
             return Ok(new { status = true, message = "Profile updated." });
         }
 
@@ -72,6 +84,8 @@ namespace UserService.Controllers
             if (req.PhotoBackground != null) user.PhotoBackground = string.IsNullOrWhiteSpace(req.PhotoBackground) ? null : req.PhotoBackground.Trim();
 
             await _context.SaveChangesAsync(ct);
+            await InvalidateProfileCacheAsync(user, includePosts: true, ct);
+
             return Ok(new { status = true, message = "Profile photos updated." });
         }
 
@@ -80,33 +94,37 @@ namespace UserService.Controllers
         {
             if (accountId <= 0) return BadRequest("Invalid account id.");
 
-            var posts = await _context.Posts
-                .AsNoTracking()
-                .Include(x => x.Account)
-                .Include(x => x.PostMedia)
-                .Where(x => x.AccountId == accountId && x.IsRemove != true)
-                .OrderByDescending(x => x.CreateAt)
-                .Select(x => new ProfilePostDto
-                {
-                    PostId = x.PostId,
-                    AccountId = x.AccountId,
-                    AuthorName = x.Account.AccountName,
-                    AuthorPhotoPath = x.Account.PhotoPath,
-                    Content = x.Content,
-                    PostType = x.PostType,
-                    CreateAt = x.CreateAt,
-                    UpdateAt = x.UpdateAt,
-                    Media = x.PostMedia
-                        .OrderBy(m => m.MediaId)
-                        .Select(m => new ProfilePostMediaDto
-                        {
-                            MediaId = m.MediaId,
-                            MediaUrl = m.MediaUrl,
-                            MediaType = m.MediaType
-                        })
-                        .ToList()
-                })
-                .ToListAsync(ct);
+            var posts = await _cache.GetOrCreateAsync(
+                CacheKeys.ProfilePosts(accountId),
+                ProfilePostsCacheTtl,
+                async token => await _context.Posts
+                    .AsNoTracking()
+                    .Include(x => x.Account)
+                    .Include(x => x.PostMedia)
+                    .Where(x => x.AccountId == accountId && x.IsRemove != true)
+                    .OrderByDescending(x => x.CreateAt)
+                    .Select(x => new ProfilePostDto
+                    {
+                        PostId = x.PostId,
+                        AccountId = x.AccountId,
+                        AuthorName = x.Account.AccountName,
+                        AuthorPhotoPath = x.Account.PhotoPath,
+                        Content = x.Content,
+                        PostType = x.PostType,
+                        CreateAt = x.CreateAt,
+                        UpdateAt = x.UpdateAt,
+                        Media = x.PostMedia
+                            .OrderBy(m => m.MediaId)
+                            .Select(m => new ProfilePostMediaDto
+                            {
+                                MediaId = m.MediaId,
+                                MediaUrl = m.MediaUrl,
+                                MediaType = m.MediaType
+                            })
+                            .ToList()
+                    })
+                    .ToListAsync(token),
+                ct);
 
             return Ok(posts);
         }
@@ -146,6 +164,7 @@ namespace UserService.Controllers
                 await _context.SaveChangesAsync(ct);
             }
 
+            await _cache.RemoveAsync(CacheKeys.ProfilePosts(req.AccountId), ct);
             return Ok(new { status = true, postId = post.PostId });
         }
 
@@ -191,6 +210,7 @@ namespace UserService.Controllers
             post.UpdateAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync(ct);
+            await _cache.RemoveAsync(CacheKeys.ProfilePosts(req.AccountId), ct);
             return Ok(new { status = true, message = "Post updated." });
         }
 
@@ -209,7 +229,20 @@ namespace UserService.Controllers
             post.UpdateAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync(ct);
+            await _cache.RemoveAsync(CacheKeys.ProfilePosts(accountId), ct);
             return Ok(new { status = true, message = "Post deleted." });
+        }
+
+        private async Task InvalidateProfileCacheAsync(AuthService.Models.Account user, bool includePosts, CancellationToken ct)
+        {
+            await _cache.RemoveAsync(CacheKeys.Profile(user.AccountId), ct);
+            await _cache.RemoveAsync(CacheKeys.UserById(user.AccountId), ct);
+
+            if (!string.IsNullOrWhiteSpace(user.Email))
+                await _cache.RemoveAsync(CacheKeys.UserByEmail(user.Email), ct);
+
+            if (includePosts)
+                await _cache.RemoveAsync(CacheKeys.ProfilePosts(user.AccountId), ct);
         }
     }
 

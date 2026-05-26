@@ -94,4 +94,7 @@ C:\Users\Admin\AppData\Local\Temp\codex-messagecall-build\MessageCallService.dep
 C:\Users\Admin\AppData\Local\Temp\codex-messagecall-build\MessageCallService.runtimeconfig.json
 C:\Users\Admin\AppData\Local\Temp\codex-messagecall-build\MessageCallService.dll
 C:\Users\Admin\AppData\Local\Temp\codex-messagecall-build\MessageCallService.pdb
+D:\laptrinhweb\code_outsrc\SystemChatBoxRealtime\microservice\SystemChatBoxRealtime\MessageCallService\bin\Debug\net9.0\Microsoft.Extensions.Caching.StackExchangeRedis.dll
+D:\laptrinhweb\code_outsrc\SystemChatBoxRealtime\microservice\SystemChatBoxRealtime\MessageCallService\bin\Debug\net9.0\Pipelines.Sockets.Unofficial.dll
+D:\laptrinhweb\code_outsrc\SystemChatBoxRealtime\microservice\SystemChatBoxRealtime\MessageCallService\bin\Debug\net9.0\StackExchange.Redis.dll
 D:\laptrinhweb\code_outsrc\SystemChatBoxRealtime\microservice\SystemChatBoxRealtime\MessageCallService\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt

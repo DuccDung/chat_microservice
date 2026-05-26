@@ -2,16 +2,22 @@ using AuthService.Dtos.Notifications;
 using AuthService.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using SharedKernel.Caching;
 
 namespace AuthService.Services;
 
 public sealed class NotificationService : INotificationService
 {
-    private readonly SocialNetworkContext _context;
+    private static readonly TimeSpan NotificationCacheTtl = TimeSpan.FromSeconds(30);
+    private static readonly TimeSpan VersionCacheTtl = TimeSpan.FromDays(7);
 
-    public NotificationService(SocialNetworkContext context)
+    private readonly SocialNetworkContext _context;
+    private readonly ICacheService _cache;
+
+    public NotificationService(SocialNetworkContext context, ICacheService cache)
     {
         _context = context;
+        _cache = cache;
     }
 
     public async Task<NotificationDto> CreateAsync(CreateNotificationRequest req, CancellationToken ct = default)
@@ -44,6 +50,7 @@ public sealed class NotificationService : INotificationService
 
         _context.Notifications.Add(notification);
         await _context.SaveChangesAsync(ct);
+        await InvalidateNotificationCacheAsync(req.ConsumerId, ct);
 
         return Map(notification);
     }
@@ -55,22 +62,27 @@ public sealed class NotificationService : INotificationService
 
         limit = Math.Clamp(limit, 1, 200);
 
-        return await _context.Notifications
-            .AsNoTracking()
-            .Where(n => n.ConsumerId == consumerId)
-            .OrderByDescending(n => n.Date)
-            .Take(limit)
-            .Select(n => new NotificationDto
-            {
-                Id = n.Id,
-                Type = n.Type,
-                Content = n.Content,
-                SenderId = n.SenderId,
-                ConsumerId = n.ConsumerId,
-                Date = n.Date,
-                IsRead = n.IsRead
-            })
-            .ToListAsync(ct);
+        var version = await GetCacheStampValueAsync(CacheKeys.NotificationsVersion(consumerId), ct);
+        return await _cache.GetOrCreateAsync(
+            CacheKeys.Notifications(consumerId, limit, version),
+            NotificationCacheTtl,
+            async token => await _context.Notifications
+                .AsNoTracking()
+                .Where(n => n.ConsumerId == consumerId)
+                .OrderByDescending(n => n.Date)
+                .Take(limit)
+                .Select(n => new NotificationDto
+                {
+                    Id = n.Id,
+                    Type = n.Type,
+                    Content = n.Content,
+                    SenderId = n.SenderId,
+                    ConsumerId = n.ConsumerId,
+                    Date = n.Date,
+                    IsRead = n.IsRead
+                })
+                .ToListAsync(token),
+            ct);
     }
 
     public async Task MarkReadAsync(int notificationId, int consumerId, CancellationToken ct = default)
@@ -86,6 +98,18 @@ public sealed class NotificationService : INotificationService
 
         notification.IsRead = true;
         await _context.SaveChangesAsync(ct);
+        await InvalidateNotificationCacheAsync(consumerId, ct);
+    }
+
+    private async Task<long> GetCacheStampValueAsync(string key, CancellationToken ct)
+    {
+        var stamp = await _cache.GetAsync<CacheStamp>(key, ct);
+        return stamp?.Value ?? 0;
+    }
+
+    private Task InvalidateNotificationCacheAsync(int consumerId, CancellationToken ct)
+    {
+        return _cache.SetAsync(CacheKeys.NotificationsVersion(consumerId), CacheStamp.New(), VersionCacheTtl, ct);
     }
 
     private static NotificationDto Map(Notification notification)

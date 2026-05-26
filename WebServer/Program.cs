@@ -42,6 +42,7 @@ builder.Services.AddHttpClient<IProfileService, ProfileService>(
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(opt => { opt.LoginPath = "/Auth/Login"; opt.LogoutPath = "/Auth/Logout"; opt.ExpireTimeSpan = TimeSpan.FromHours(8); opt.SlidingExpiration = true; });
 builder.Services.AddSingleton<WebServer.Services.RealtimeHub>();
+builder.Services.AddSingleton<WebServer.Services.GroupCallRegistry>();
 builder.Services.AddSingleton<WebServer.Services.WebSocketHandler>();
 var app = builder.Build();
 

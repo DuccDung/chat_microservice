@@ -1,0 +1,136 @@
+@using WebServer.ViewModels.WebServer.ViewModels
+@model GroupCallPopupVm
+
+@{
+    var isAudio = string.Equals(Model.CallType, "audio", StringComparison.OrdinalIgnoreCase);
+    var callTypeText = isAudio ? "Cuộc gọi thoại nhóm" : "Cuộc gọi video nhóm";
+    var groupName = string.IsNullOrWhiteSpace(Model.GroupName) ? "Nhóm chat" : Model.GroupName;
+    var groupPhoto = string.IsNullOrWhiteSpace(Model.GroupPhoto)
+        ? Url.Content("~/assets/icons/group-default.svg")
+        : Model.GroupPhoto;
+    var meName = string.IsNullOrWhiteSpace(Model.MeName) ? "Bạn" : Model.MeName;
+    var mePhoto = string.IsNullOrWhiteSpace(Model.MePhoto)
+        ? Url.Content("~/assets/images/avatar-default.png")
+        : Model.MePhoto;
+    var defaultAvatar = Url.Content("~/assets/images/avatar-default.png");
+}
+
+<div class="group_call_modal @(isAudio ? "group_call_modal--audio" : "group_call_modal--video")"
+     data-group-call-popup="1"
+     data-call-state="calling"
+     data-conversation-id="@Model.ConversationId"
+     data-room-id="@Model.RoomId"
+     data-call-type="@Model.CallType"
+     data-me-id="@Model.MeId"
+     data-me-name="@meName"
+     data-me-photo="@mePhoto">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+
+    <header class="group_call_topbar">
+        <div class="group_call_identity">
+            <div class="group_call_group_avatar">
+                <img src="@groupPhoto" alt="@groupName" />
+            </div>
+            <div class="group_call_title_wrap">
+                <strong>@groupName</strong>
+                <span data-group-call-status>@callTypeText - Đang kết nối...</span>
+            </div>
+        </div>
+
+        <div class="group_call_top_actions">
+            <button class="group_call_icon_btn"
+                    type="button"
+                    data-action="toggle-participants"
+                    title="Thành viên"
+                    aria-label="Thành viên">
+                <i class="fa-solid fa-users"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="group_call_body">
+        <section class="group_call_grid" data-group-call-grid aria-label="@callTypeText">
+            <article class="group_call_tile group_call_tile--local"
+                     data-group-call-tile="@Model.MeId"
+                     data-local-tile="1"
+                     data-mic-on="1"
+                     data-camera-on="@(isAudio ? "0" : "1")">
+                <video class="group_call_video"
+                       id="groupLocalVideo"
+                       autoplay
+                       muted
+                       playsinline></video>
+                <div class="group_call_avatar_fallback">
+                    <img src="@mePhoto" alt="@meName" onerror="this.onerror=null;this.src='@defaultAvatar';" />
+                </div>
+                <div class="group_call_tile_shade"></div>
+                <div class="group_call_tile_footer">
+                    <span class="group_call_tile_name">Bạn</span>
+                    <span class="group_call_tile_state">
+                        <i class="fa-solid fa-microphone"></i>
+                        <i class="fa-solid @(isAudio ? "fa-video-slash" : "fa-video")"></i>
+                    </span>
+                </div>
+            </article>
+        </section>
+
+        <aside class="group_call_sidebar" data-group-call-sidebar>
+            <div class="group_call_sidebar_head">
+                <strong>Thành viên</strong>
+                <span data-group-call-count>@Model.Members.Count người</span>
+            </div>
+            <div class="group_call_participants" data-group-call-participants>
+                @foreach (var member in Model.Members)
+                {
+                    var photo = string.IsNullOrWhiteSpace(member.PhotoPath)
+                        ? defaultAvatar
+                        : member.PhotoPath;
+                    var isMe = member.AccountId == Model.MeId;
+
+                    <div class="group_call_participant"
+                         data-group-call-participant="@member.AccountId"
+                         data-status="@(isMe ? "joined" : "invited")">
+                        <img src="@photo" alt="@member.AccountName" onerror="this.onerror=null;this.src='@defaultAvatar';" />
+                        <div>
+                            <strong>@(isMe ? "Bạn" : member.AccountName)</strong>
+                            <span>@(isMe ? "Đã tham gia" : "Đang chờ")</span>
+                        </div>
+                    </div>
+                }
+            </div>
+        </aside>
+    </main>
+
+    <div class="group_call_controls" role="toolbar" aria-label="Điều khiển cuộc gọi nhóm">
+        <button class="group_call_control"
+                type="button"
+                data-action="toggle-camera"
+                data-on="@(isAudio ? "0" : "1")"
+                title="Bật/Tắt camera"
+                aria-label="Bật/Tắt camera"
+                @(isAudio ? "disabled" : "")>
+            <i class="fa-solid @(isAudio ? "fa-video-slash" : "fa-video")"></i>
+            <span>Camera</span>
+        </button>
+
+        <button class="group_call_control"
+                type="button"
+                data-action="toggle-mic"
+                data-on="1"
+                title="Tắt/Bật mic"
+                aria-label="Tắt/Bật mic">
+            <i class="fa-solid fa-microphone"></i>
+            <span>Mic</span>
+        </button>
+
+        <button class="group_call_control group_call_end"
+                type="button"
+                data-action="end"
+                title="Kết thúc"
+                aria-label="Kết thúc">
+            <i class="fa-solid fa-phone-slash"></i>
+            <span>Kết thúc</span>
+        </button>
+    </div>
+</div>

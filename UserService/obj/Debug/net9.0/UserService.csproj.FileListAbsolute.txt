@@ -94,4 +94,7 @@ C:\Users\Admin\AppData\Local\Temp\codex-userservice-build\UserService.deps.json
 C:\Users\Admin\AppData\Local\Temp\codex-userservice-build\UserService.runtimeconfig.json
 C:\Users\Admin\AppData\Local\Temp\codex-userservice-build\UserService.dll
 C:\Users\Admin\AppData\Local\Temp\codex-userservice-build\UserService.pdb
+D:\laptrinhweb\code_outsrc\SystemChatBoxRealtime\microservice\SystemChatBoxRealtime\UserService\bin\Debug\net9.0\Microsoft.Extensions.Caching.StackExchangeRedis.dll
+D:\laptrinhweb\code_outsrc\SystemChatBoxRealtime\microservice\SystemChatBoxRealtime\UserService\bin\Debug\net9.0\Pipelines.Sockets.Unofficial.dll
+D:\laptrinhweb\code_outsrc\SystemChatBoxRealtime\microservice\SystemChatBoxRealtime\UserService\bin\Debug\net9.0\StackExchange.Redis.dll
 D:\laptrinhweb\code_outsrc\SystemChatBoxRealtime\microservice\SystemChatBoxRealtime\UserService\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt

@@ -217,7 +217,8 @@ namespace WebServer.Controllers
                     conversationId,
                     ownerId,
                     title,
-                    avatarUrl);
+                    avatarUrl,
+                    req.OwnerOnlyMessages);
 
                 return Ok(updated);
             }
@@ -551,6 +552,77 @@ namespace WebServer.Controllers
             return PartialView("Partials/_CallPopup", vm);
         }
 
+        [HttpGet("/call/group_popup")]
+        public async Task<IActionResult> GroupCallPopup(
+            [FromQuery] int conversationId,
+            [FromQuery] string? callType,
+            [FromQuery] string? roomId)
+        {
+            if (conversationId <= 0)
+                return BadRequest(new { message = "conversationId is required." });
+
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(userIdStr))
+                return Unauthorized(new { message = "Not logged in." });
+
+            var meId = int.Parse(userIdStr);
+            var group = await _conversationService.GetGroupInfoAsync(conversationId, meId);
+            var me = group.Members.FirstOrDefault(m => m.AccountId == meId);
+
+            var vm = new GroupCallPopupVm
+            {
+                ConversationId = conversationId,
+                CallType = string.IsNullOrWhiteSpace(callType) ? "video" : callType.Trim(),
+                RoomId = roomId,
+                MeId = meId,
+                MeName = me?.AccountName,
+                MePhoto = me?.PhotoPath,
+                GroupName = group.Title,
+                GroupPhoto = group.AvatarUrl,
+                Members = group.Members
+            };
+
+            return PartialView("Partials/_GroupCallPopup", vm);
+        }
+
+        [HttpGet("/call/group_incoming_popup")]
+        public async Task<IActionResult> GroupIncomingCallPopup(
+            [FromQuery] int conversationId,
+            [FromQuery] string callType,
+            [FromQuery] string roomId,
+            [FromQuery] int fromUserId)
+        {
+            if (conversationId <= 0)
+                return BadRequest(new { message = "conversationId is required." });
+
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(userIdStr))
+                return Unauthorized(new { message = "Not logged in." });
+
+            var meId = int.Parse(userIdStr);
+            var group = await _conversationService.GetGroupInfoAsync(conversationId, meId);
+            var me = group.Members.FirstOrDefault(m => m.AccountId == meId);
+            var caller = group.Members.FirstOrDefault(m => m.AccountId == fromUserId);
+
+            var vm = new GroupIncomingCallVm
+            {
+                ConversationId = conversationId,
+                CallType = string.IsNullOrWhiteSpace(callType) ? "video" : callType.Trim(),
+                RoomId = roomId,
+                MeId = meId,
+                MeName = me?.AccountName,
+                MePhoto = me?.PhotoPath,
+                FromUserId = fromUserId,
+                FromUserName = caller?.AccountName ?? "Người dùng",
+                FromUserPhoto = caller?.PhotoPath,
+                GroupName = group.Title,
+                GroupPhoto = group.AvatarUrl,
+                MemberCount = group.Members.Count
+            };
+
+            return PartialView("Partials/_GroupIncomingCallPopup", vm);
+        }
+
         private static async Task<string> SaveGroupAvatarAsync(IFormFile file)
         {
             var allowedExts = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -590,6 +662,7 @@ namespace WebServer.Controllers
     {
         public string? Title { get; set; }
         public IFormFile? Avatar { get; set; }
+        public bool? OwnerOnlyMessages { get; set; }
     }
 
     public sealed class LeaveGroupWebRequest

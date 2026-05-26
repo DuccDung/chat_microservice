@@ -3,6 +3,7 @@ using AuthService.Models;
 using AuthService.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using SharedKernel.Caching;
 
 namespace AuthService.Services;
 
@@ -12,12 +13,19 @@ public sealed class MessageCallService : IMessageCallService
     private const string DefaultGroupAvatarUrl = "/assets/icons/group-default.svg";
     private const string GroupOwnerRole = "owner";
     private const string GroupMemberRole = "member";
+    private static readonly TimeSpan ThreadsCacheTtl = TimeSpan.FromSeconds(30);
+    private static readonly TimeSpan MessagesCacheTtl = TimeSpan.FromSeconds(30);
+    private static readonly TimeSpan GroupInfoCacheTtl = TimeSpan.FromMinutes(5);
+    private static readonly TimeSpan PeerInfoCacheTtl = TimeSpan.FromMinutes(5);
+    private static readonly TimeSpan VersionCacheTtl = TimeSpan.FromDays(7);
 
     private readonly SocialNetworkContext _context;
+    private readonly ICacheService _cache;
 
-    public MessageCallService(SocialNetworkContext context)
+    public MessageCallService(SocialNetworkContext context, ICacheService cache)
     {
         _context = context;
+        _cache = cache;
     }
 
     public async Task<ConversationDto> CreateOrGetOneToOneAsync(CreateConversationRequest req, CancellationToken ct = default)
@@ -61,6 +69,7 @@ public sealed class MessageCallService : IMessageCallService
         {
             IsGroup = false,
             Title = null,
+            OwnerOnlyMessages = false,
             CreatedAt = now
         };
 
@@ -89,6 +98,7 @@ public sealed class MessageCallService : IMessageCallService
         await _context.SaveChangesAsync(ct);
         await tx.CommitAsync(ct);
 
+        await InvalidateThreadCachesAsync(new[] { req.AccountId, req.FriendId }, ct);
         return MapConversation(conversation);
     }
 
@@ -138,6 +148,7 @@ public sealed class MessageCallService : IMessageCallService
         {
             IsGroup = true,
             Title = title,
+            OwnerOnlyMessages = false,
             CreatedAt = now
         };
 
@@ -169,6 +180,7 @@ public sealed class MessageCallService : IMessageCallService
         await _context.SaveChangesAsync(ct);
         await tx.CommitAsync(ct);
 
+        await InvalidateThreadCachesAsync(allIds, ct);
         return MapConversation(conversation);
     }
 
@@ -181,7 +193,12 @@ public sealed class MessageCallService : IMessageCallService
         if (!exists)
             throw new ServiceException(StatusCodes.Status404NotFound, "User not found.");
 
-        var threads = await _context.ConversationMembers
+        return await _cache.GetOrCreateAsync(
+            CacheKeys.ConversationThreads(accountId),
+            ThreadsCacheTtl,
+            async token =>
+            {
+                var threads = await _context.ConversationMembers
             .Where(cm => cm.AccountId == accountId)
             .Select(cm => cm.Conversation)
             .Where(c => c != null)
@@ -202,9 +219,9 @@ public sealed class MessageCallService : IMessageCallService
                     .FirstOrDefault()
             })
             .OrderByDescending(x => x.LastMessage == null ? x.Conversation.CreatedAt : x.LastMessage.CreatedAt)
-            .ToListAsync(ct);
+            .ToListAsync(token);
 
-        return threads.Select(x =>
+                return threads.Select(x =>
         {
             var conversation = x.Conversation;
             var name = conversation.IsGroup
@@ -232,12 +249,15 @@ public sealed class MessageCallService : IMessageCallService
                 OtherAccountId = conversation.IsGroup ? null : x.OtherMember?.AccountId,
                 IsGroup = conversation.IsGroup,
                 IsOwner = conversation.IsGroup && x.MyRole == GroupOwnerRole,
+                OwnerOnlyMessages = conversation.IsGroup && conversation.OwnerOnlyMessages,
                 Name = name,
                 AvatarUrl = avatar,
                 Snippet = snippet,
                 LastMessageAt = lastAt
             };
         }).ToList();
+            },
+            ct);
     }
 
     public async Task<GroupInfoDto> GetGroupInfoAsync(int conversationId, int meId, CancellationToken ct = default)
@@ -256,7 +276,13 @@ public sealed class MessageCallService : IMessageCallService
 
         await EnsureMemberAsync(conversationId, meId, ct);
 
-        var members = await _context.ConversationMembers
+        var version = await GetCacheStampValueAsync(CacheKeys.GroupInfoVersion(conversationId), ct);
+        return await _cache.GetOrCreateAsync(
+            CacheKeys.GroupInfo(conversationId, meId, version),
+            GroupInfoCacheTtl,
+            async token =>
+            {
+                var members = await _context.ConversationMembers
             .Where(cm => cm.ConversationId == conversationId)
             .Include(cm => cm.Account)
             .AsNoTracking()
@@ -271,16 +297,19 @@ public sealed class MessageCallService : IMessageCallService
                 Role = cm.Title == GroupOwnerRole ? GroupOwnerRole : GroupMemberRole,
                 JoinedAt = cm.JoinedAt
             })
-            .ToListAsync(ct);
+            .ToListAsync(token);
 
-        return new GroupInfoDto
-        {
-            ConversationId = conversation.ConversationId,
-            Title = string.IsNullOrWhiteSpace(conversation.Title) ? "Nhóm chat" : conversation.Title!,
-            AvatarUrl = string.IsNullOrWhiteSpace(conversation.AvatarUrl) ? DefaultGroupAvatarUrl : conversation.AvatarUrl!,
-            IsOwner = members.Any(x => x.AccountId == meId && x.Role == GroupOwnerRole),
-            Members = members
-        };
+                return new GroupInfoDto
+                {
+                    ConversationId = conversation.ConversationId,
+                    Title = string.IsNullOrWhiteSpace(conversation.Title) ? "Nhóm chat" : conversation.Title!,
+                    AvatarUrl = string.IsNullOrWhiteSpace(conversation.AvatarUrl) ? DefaultGroupAvatarUrl : conversation.AvatarUrl!,
+                    IsOwner = members.Any(x => x.AccountId == meId && x.Role == GroupOwnerRole),
+                    OwnerOnlyMessages = conversation.OwnerOnlyMessages,
+                    Members = members
+                };
+            },
+            ct);
     }
 
     public async Task<ConversationDto> JoinGroupAsync(int conversationId, int accountId, CancellationToken ct = default)
@@ -316,6 +345,8 @@ public sealed class MessageCallService : IMessageCallService
             });
 
             await _context.SaveChangesAsync(ct);
+            await InvalidateGroupCachesAsync(conversationId, ct);
+            await InvalidateThreadCachesAsync(new[] { accountId }, ct);
         }
 
         return MapConversation(conversation);
@@ -337,6 +368,7 @@ public sealed class MessageCallService : IMessageCallService
             throw new ServiceException(StatusCodes.Status404NotFound, "Group not found.");
 
         await EnsureGroupOwnerAsync(conversationId, req.OwnerId, ct);
+        var affectedMemberIds = await GetConversationMemberIdsAsync(conversationId, ct);
 
         if (req.Title != null)
         {
@@ -355,7 +387,14 @@ public sealed class MessageCallService : IMessageCallService
                 : avatarUrl.Length > 255 ? avatarUrl[..255] : avatarUrl;
         }
 
+        if (req.OwnerOnlyMessages.HasValue)
+        {
+            conversation.OwnerOnlyMessages = req.OwnerOnlyMessages.Value;
+        }
+
         await _context.SaveChangesAsync(ct);
+        await InvalidateGroupCachesAsync(conversationId, ct);
+        await InvalidateThreadCachesAsync(affectedMemberIds, ct);
         return await GetGroupInfoAsync(conversationId, req.OwnerId, ct);
     }
 
@@ -379,6 +418,7 @@ public sealed class MessageCallService : IMessageCallService
         var members = await _context.ConversationMembers
             .Where(cm => cm.ConversationId == conversationId)
             .ToListAsync(ct);
+        var affectedMemberIds = members.Select(cm => cm.AccountId).ToList();
 
         var leavingMember = members.FirstOrDefault(cm => cm.AccountId == req.AccountId);
         if (leavingMember == null)
@@ -392,6 +432,9 @@ public sealed class MessageCallService : IMessageCallService
         {
             await DissolveGroupAsync(conversation, ct);
             await tx.CommitAsync(ct);
+            await InvalidateGroupCachesAsync(conversationId, ct);
+            await InvalidateConversationMessageCachesAsync(conversationId, ct);
+            await InvalidateThreadCachesAsync(affectedMemberIds, ct);
             return new LeaveGroupResultDto { Dissolved = true };
         }
 
@@ -412,6 +455,8 @@ public sealed class MessageCallService : IMessageCallService
         await _context.SaveChangesAsync(ct);
         await tx.CommitAsync(ct);
 
+        await InvalidateGroupCachesAsync(conversationId, ct);
+        await InvalidateThreadCachesAsync(affectedMemberIds, ct);
         return new LeaveGroupResultDto { Dissolved = false };
     }
 
@@ -434,6 +479,7 @@ public sealed class MessageCallService : IMessageCallService
             throw new ServiceException(StatusCodes.Status404NotFound, "Group not found.");
 
         await EnsureGroupOwnerAsync(conversationId, req.OwnerId, ct);
+        var affectedMemberIds = await GetConversationMemberIdsAsync(conversationId, ct);
 
         var member = await _context.ConversationMembers
             .FirstOrDefaultAsync(cm =>
@@ -446,6 +492,8 @@ public sealed class MessageCallService : IMessageCallService
 
         _context.ConversationMembers.Remove(member);
         await _context.SaveChangesAsync(ct);
+        await InvalidateGroupCachesAsync(conversationId, ct);
+        await InvalidateThreadCachesAsync(affectedMemberIds, ct);
     }
 
     public async Task<List<MessageDto>> GetMessagesAsync(
@@ -463,23 +511,31 @@ public sealed class MessageCallService : IMessageCallService
         limit = Math.Clamp(limit, 1, 200);
         await EnsureMemberAsync(conversationId, meId, ct);
 
-        var query = _context.Messages
-            .Where(m => m.ConversationId == conversationId && (m.IsRemove == null || m.IsRemove == false))
-            .Include(m => m.Sender)
-            .AsNoTracking()
-            .OrderByDescending(m => m.MessageId);
+        var version = await GetCacheStampValueAsync(CacheKeys.ConversationMessagesVersion(conversationId), ct);
+        return await _cache.GetOrCreateAsync(
+            CacheKeys.ConversationMessages(conversationId, limit, beforeMessageId, version),
+            MessagesCacheTtl,
+            async token =>
+            {
+                var query = _context.Messages
+                    .Where(m => m.ConversationId == conversationId && (m.IsRemove == null || m.IsRemove == false))
+                    .Include(m => m.Sender)
+                    .AsNoTracking()
+                    .OrderByDescending(m => m.MessageId);
 
-        if (beforeMessageId.HasValue)
-        {
-            query = query
-                .Where(m => m.MessageId < beforeMessageId.Value)
-                .OrderByDescending(m => m.MessageId);
-        }
+                if (beforeMessageId.HasValue)
+                {
+                    query = query
+                        .Where(m => m.MessageId < beforeMessageId.Value)
+                        .OrderByDescending(m => m.MessageId);
+                }
 
-        var messages = await query.Take(limit).ToListAsync(ct);
-        messages.Reverse();
+                var messages = await query.Take(limit).ToListAsync(token);
+                messages.Reverse();
 
-        return messages.Select(MapMessage).ToList();
+                return messages.Select(MapMessage).ToList();
+            },
+            ct);
     }
 
     public async Task MarkReadAsync(int conversationId, int meId, CancellationToken ct = default)
@@ -538,31 +594,38 @@ public sealed class MessageCallService : IMessageCallService
 
         await EnsureMemberAsync(conversationId, meId, ct);
 
-        var users = await _context.ConversationMembers
-            .Where(cm => cm.ConversationId == conversationId)
-            .Select(cm => new PeerDto
+        return await _cache.GetOrCreateAsync(
+            CacheKeys.ConversationPeer(conversationId, meId),
+            PeerInfoCacheTtl,
+            async token =>
             {
-                AccountId = cm.Account.AccountId,
-                AccountName = cm.Account.AccountName,
-                Email = cm.Account.Email,
-                PhotoPath = cm.Account.PhotoPath
-            })
-            .AsNoTracking()
-            .ToListAsync(ct);
+                var users = await _context.ConversationMembers
+                    .Where(cm => cm.ConversationId == conversationId)
+                    .Select(cm => new PeerDto
+                    {
+                        AccountId = cm.Account.AccountId,
+                        AccountName = cm.Account.AccountName,
+                        Email = cm.Account.Email,
+                        PhotoPath = cm.Account.PhotoPath
+                    })
+                    .AsNoTracking()
+                    .ToListAsync(token);
 
-        var me = users.FirstOrDefault(x => x.AccountId == meId);
-        var peer = users.FirstOrDefault(x => x.AccountId != meId);
+                var me = users.FirstOrDefault(x => x.AccountId == meId);
+                var peer = users.FirstOrDefault(x => x.AccountId != meId);
 
-        if (me == null)
-            throw new ServiceException(StatusCodes.Status404NotFound, "Me not found.");
-        if (peer == null)
-            throw new ServiceException(StatusCodes.Status404NotFound, "Peer not found.");
+                if (me == null)
+                    throw new ServiceException(StatusCodes.Status404NotFound, "Me not found.");
+                if (peer == null)
+                    throw new ServiceException(StatusCodes.Status404NotFound, "Peer not found.");
 
-        return new ConversationPeerResponseDto
-        {
-            Me = me,
-            Peer = peer
-        };
+                return new ConversationPeerResponseDto
+                {
+                    Me = me,
+                    Peer = peer
+                };
+            },
+            ct);
     }
 
     private async Task<MessageDto> CreateMessageAsync(
@@ -578,8 +641,11 @@ public sealed class MessageCallService : IMessageCallService
         if (senderId <= 0)
             throw new ServiceException(StatusCodes.Status400BadRequest, "SenderId is required.");
 
-        var convExists = await _context.Conversations.AnyAsync(c => c.ConversationId == conversationId, ct);
-        if (!convExists)
+        var conversation = await _context.Conversations
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c => c.ConversationId == conversationId, ct);
+
+        if (conversation == null)
             throw new ServiceException(StatusCodes.Status404NotFound, "Conversation not found.");
 
         var sender = await _context.Accounts
@@ -589,7 +655,21 @@ public sealed class MessageCallService : IMessageCallService
         if (sender == null)
             throw new ServiceException(StatusCodes.Status404NotFound, "Sender not found.");
 
-        await EnsureMemberAsync(conversationId, senderId, ct);
+        var senderMembership = await _context.ConversationMembers
+            .AsNoTracking()
+            .Where(cm => cm.ConversationId == conversationId && cm.AccountId == senderId)
+            .Select(cm => new { cm.Title })
+            .FirstOrDefaultAsync(ct);
+
+        if (senderMembership == null)
+            throw new ServiceException(StatusCodes.Status403Forbidden, "User is not a member of this conversation.");
+
+        if (conversation.IsGroup &&
+            conversation.OwnerOnlyMessages &&
+            !string.Equals(senderMembership.Title, GroupOwnerRole, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ServiceException(StatusCodes.Status403Forbidden, "Chỉ trưởng nhóm mới được gửi tin nhắn trong nhóm này.");
+        }
 
         if (parentMessageId.HasValue)
         {
@@ -617,6 +697,8 @@ public sealed class MessageCallService : IMessageCallService
         await _context.SaveChangesAsync(ct);
 
         message.Sender = sender;
+        await InvalidateConversationMessageCachesAsync(conversationId, ct);
+        await InvalidateConversationThreadCachesAsync(conversationId, ct);
         return MapMessage(message);
     }
 
@@ -659,6 +741,45 @@ public sealed class MessageCallService : IMessageCallService
         await _context.SaveChangesAsync(ct);
     }
 
+    private async Task<long> GetCacheStampValueAsync(string key, CancellationToken ct)
+    {
+        var stamp = await _cache.GetAsync<CacheStamp>(key, ct);
+        return stamp?.Value ?? 0;
+    }
+
+    private Task InvalidateGroupCachesAsync(int conversationId, CancellationToken ct)
+    {
+        return _cache.SetAsync(CacheKeys.GroupInfoVersion(conversationId), CacheStamp.New(), VersionCacheTtl, ct);
+    }
+
+    private Task InvalidateConversationMessageCachesAsync(int conversationId, CancellationToken ct)
+    {
+        return _cache.SetAsync(CacheKeys.ConversationMessagesVersion(conversationId), CacheStamp.New(), VersionCacheTtl, ct);
+    }
+
+    private async Task InvalidateConversationThreadCachesAsync(int conversationId, CancellationToken ct)
+    {
+        var memberIds = await GetConversationMemberIdsAsync(conversationId, ct);
+        await InvalidateThreadCachesAsync(memberIds, ct);
+    }
+
+    private async Task<List<int>> GetConversationMemberIdsAsync(int conversationId, CancellationToken ct)
+    {
+        return await _context.ConversationMembers
+            .AsNoTracking()
+            .Where(cm => cm.ConversationId == conversationId)
+            .Select(cm => cm.AccountId)
+            .ToListAsync(ct);
+    }
+
+    private async Task InvalidateThreadCachesAsync(IEnumerable<int> accountIds, CancellationToken ct)
+    {
+        foreach (var accountId in accountIds.Where(id => id > 0).Distinct())
+        {
+            await _cache.RemoveAsync(CacheKeys.ConversationThreads(accountId), ct);
+        }
+    }
+
     private static ConversationDto MapConversation(Conversation conversation)
     {
         return new ConversationDto
@@ -667,6 +788,7 @@ public sealed class MessageCallService : IMessageCallService
             IsGroup = conversation.IsGroup,
             Title = conversation.Title,
             AvatarUrl = conversation.AvatarUrl,
+            OwnerOnlyMessages = conversation.OwnerOnlyMessages,
             CreatedAt = conversation.CreatedAt
         };
     }

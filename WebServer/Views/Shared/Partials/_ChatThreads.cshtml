@@ -42,6 +42,7 @@ else
             data-other-account-id="@t.OtherAccountId"
             data-is-group="@t.IsGroup.ToString().ToLowerInvariant()"
             data-is-owner="@t.IsOwner.ToString().ToLowerInvariant()"
+            data-owner-only-messages="@t.OwnerOnlyMessages.ToString().ToLowerInvariant()"
             data-name="@t.Name"
             data-avatar="@SafeImg(t.AvatarUrl)">
             <div class="avatar">
@@ -71,7 +72,7 @@ else
                     <li class="js-view-profile" data-user-name="@t.Name">Xem trang cá nhân</li>
                 }
                 <li class="js-call">Gọi thoại</li>
-                <li class="js-video">Chat video</li>
+                <li class="js-video">Gọi video</li>
                 <li class="js-block">Chặn</li>
                 <li class="js-archive">Lưu trữ đoạn chat</li>
                 <li class="js-delete">Xóa đoạn chat</li>

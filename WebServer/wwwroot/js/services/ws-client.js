@@ -59,3 +59,17 @@ export function sendCall(toUserId, payload) {
     if (ws.readyState === WebSocket.OPEN) send();
     else ws.addEventListener("open", send, { once: true });
 }
+
+export function sendGroupCall(type, payload = {}) {
+    connectWs();
+    if (!ws) return;
+
+    const msg = {
+        type,
+        payload
+    };
+
+    const send = () => ws.send(JSON.stringify(msg));
+    if (ws.readyState === WebSocket.OPEN) send();
+    else ws.addEventListener("open", send, { once: true });
+}

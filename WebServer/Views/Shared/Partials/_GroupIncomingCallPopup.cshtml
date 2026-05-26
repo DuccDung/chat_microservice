@@ -1,0 +1,68 @@
+@using WebServer.ViewModels.WebServer.ViewModels
+@model GroupIncomingCallVm
+
+@{
+    var isAudio = string.Equals(Model.CallType, "audio", StringComparison.OrdinalIgnoreCase);
+    var callTypeText = isAudio ? "cuộc gọi thoại nhóm" : "cuộc gọi video nhóm";
+    var groupName = string.IsNullOrWhiteSpace(Model.GroupName) ? "Nhóm chat" : Model.GroupName;
+    var groupPhoto = string.IsNullOrWhiteSpace(Model.GroupPhoto)
+        ? Url.Content("~/assets/icons/group-default.svg")
+        : Model.GroupPhoto;
+    var callerName = string.IsNullOrWhiteSpace(Model.FromUserName) ? "Người dùng" : Model.FromUserName;
+    var callerPhoto = string.IsNullOrWhiteSpace(Model.FromUserPhoto)
+        ? Url.Content("~/assets/images/avatar-default.png")
+        : Model.FromUserPhoto;
+    var defaultAvatar = Url.Content("~/assets/images/avatar-default.png");
+}
+
+<div class="group_incoming_backdrop"
+     data-group-incoming-popup="1"
+     data-conversation-id="@Model.ConversationId"
+     data-room-id="@Model.RoomId"
+     data-call-type="@Model.CallType"
+     data-me-id="@Model.MeId"
+     data-me-name="@Model.MeName"
+     data-me-photo="@Model.MePhoto"
+     data-peer-id="@Model.FromUserId"
+     data-peer-name="@callerName"
+     data-peer-photo="@callerPhoto">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+
+    <div class="group_incoming_card" role="dialog" aria-modal="true" aria-label="Cuộc gọi nhóm đến">
+        <button class="group_incoming_close" type="button" title="Từ chối" aria-label="Từ chối" data-action="decline">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+
+        <div class="group_incoming_stack" aria-hidden="true">
+            <img class="group_incoming_group_img" src="@groupPhoto" alt="" />
+            <img class="group_incoming_caller_img" src="@callerPhoto" alt="" onerror="this.onerror=null;this.src='@defaultAvatar';" />
+        </div>
+
+        <div class="group_incoming_label">Đang có @callTypeText đến</div>
+        <div class="group_incoming_title">@groupName</div>
+        <div class="group_incoming_sub">
+            <strong>@callerName</strong> đang mời bạn tham gia
+        </div>
+        <div class="group_incoming_meta">
+            <i class="fa-solid fa-users"></i>
+            @Model.MemberCount thành viên trong nhóm
+        </div>
+
+        <div class="group_incoming_actions">
+            <button class="group_incoming_action" type="button" data-action="decline" title="Từ chối" aria-label="Từ chối">
+                <span class="group_incoming_circle group_incoming_decline">
+                    <i class="fa-solid fa-phone-slash"></i>
+                </span>
+                <span>Từ chối</span>
+            </button>
+
+            <button class="group_incoming_action" type="button" data-action="accept" title="Nhận cuộc gọi" aria-label="Nhận cuộc gọi">
+                <span class="group_incoming_circle group_incoming_accept">
+                    <i class="fa-solid @(isAudio ? "fa-phone" : "fa-video")"></i>
+                </span>
+                <span>Nhận</span>
+            </button>
+        </div>
+    </div>
+</div>

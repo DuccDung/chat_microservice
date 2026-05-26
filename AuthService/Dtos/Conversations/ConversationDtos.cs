@@ -12,6 +12,7 @@ namespace AuthService.Dtos.Conversations
         public bool IsGroup { get; set; }
         public string? Title { get; set; }
         public string? AvatarUrl { get; set; }
+        public bool OwnerOnlyMessages { get; set; }
         public DateTime? CreatedAt { get; set; }
     }
     public class ThreadDto
@@ -20,6 +21,7 @@ namespace AuthService.Dtos.Conversations
         public int? OtherAccountId { get; set; }
         public bool IsGroup { get; set; }
         public bool IsOwner { get; set; }
+        public bool OwnerOnlyMessages { get; set; }
         public string Name { get; set; } = "";
         public string AvatarUrl { get; set; } = "";
         public string Snippet { get; set; } = "";
@@ -49,6 +51,7 @@ namespace AuthService.Dtos.Conversations
         public int OwnerId { get; set; }
         public string? Title { get; set; }
         public string? AvatarUrl { get; set; }
+        public bool? OwnerOnlyMessages { get; set; }
     }
 
     public class LeaveGroupRequest
@@ -78,6 +81,7 @@ namespace AuthService.Dtos.Conversations
         public string Title { get; set; } = "";
         public string AvatarUrl { get; set; } = "";
         public bool IsOwner { get; set; }
+        public bool OwnerOnlyMessages { get; set; }
         public List<GroupMemberDto> Members { get; set; } = new();
     }
     public class MessageDto

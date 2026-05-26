@@ -8,6 +8,7 @@ const threadList = document.getElementById("threadList");
 const peerName = document.getElementById("peerName");
 const peerAvatar = document.getElementById("peerAvatar");
 const peerStatus = document.getElementById("peerStatus");
+let didAutoOpenInitialThread = false;
 
 console.log("threads-ui loaded", { threadList: !!threadList });
 
@@ -70,6 +71,10 @@ if (!threadList) {
         }
     });
 
+    threadList.addEventListener("threads:loaded", () => {
+        void autoOpenFirstThread();
+    });
+
     autoOpenFirstThreadWhenReady();
 }
 
@@ -87,6 +92,7 @@ document.addEventListener("click", async (e) => {
         const title = modal?.querySelector(".group_manage__title_input")?.value?.trim() || "";
         const avatarInput = modal?.querySelector(".group_manage__avatar_input");
         const avatarFile = avatarInput?.files?.[0] || null;
+        const ownerOnlyMessages = !!modal?.querySelector(".group_manage__owner_only_input")?.checked;
 
         if (!conversationId) return;
         if (!title) {
@@ -96,7 +102,7 @@ document.addEventListener("click", async (e) => {
 
         try {
             load(true);
-            const updated = await chatService.updateGroupSettings(conversationId, title, avatarFile);
+            const updated = await chatService.updateGroupSettings(conversationId, title, avatarFile, ownerOnlyMessages);
             await loadThreads();
 
             const res = await chatService.getGroupInfoView(conversationId);
@@ -221,6 +227,7 @@ async function openThread(item) {
     if (peerName) peerName.textContent = item.dataset.name || "Người dùng";
     if (peerAvatar) peerAvatar.src = item.dataset.avatar || peerAvatar.src;
     if (peerStatus) peerStatus.textContent = item.dataset.isGroup === "true" ? "Nhóm chat" : "";
+    syncComposerPermission(item);
 
     item.classList.remove("highlight", "unread");
     const badge = item.querySelector(".unread-badge");
@@ -228,6 +235,37 @@ async function openThread(item) {
 
     await loadMessages(conversationId);
     subscribeConversation(parseInt(conversationId, 10));
+}
+
+function syncComposerPermission(item) {
+    const isBlocked =
+        item.dataset.isGroup === "true" &&
+        item.dataset.ownerOnlyMessages === "true" &&
+        item.dataset.isOwner !== "true";
+
+    const composer = document.querySelector(".composer");
+    const msgInput = document.getElementById("msgInput");
+    const controls = [
+        "sendBtn",
+        "btn-record-voice",
+        "btn-select-img-sender",
+        "btn-select-gif-sender",
+        "emojiBtn"
+    ]
+        .map((id) => document.getElementById(id))
+        .filter(Boolean);
+
+    composer?.classList.toggle("composer--disabled", isBlocked);
+
+    if (msgInput) {
+        msgInput.disabled = isBlocked;
+        if (isBlocked) msgInput.value = "";
+        msgInput.placeholder = isBlocked ? "Chỉ trưởng nhóm mới được nhắn" : "Aa";
+    }
+
+    controls.forEach((control) => {
+        control.disabled = isBlocked;
+    });
 }
 
 async function loadMessages(conversationId) {
@@ -244,7 +282,13 @@ async function loadMessages(conversationId) {
         temp.innerHTML = html;
 
         const newSection = temp.querySelector("#messageScroller");
-        scroller.innerHTML = newSection ? newSection.innerHTML : html;
+        if (newSection) {
+            scroller.dataset.conversationId = newSection.dataset.conversationId || "";
+            scroller.dataset.meId = newSection.dataset.meId || "";
+            scroller.innerHTML = newSection.innerHTML;
+        } else {
+            scroller.innerHTML = html;
+        }
 
         scroller.scrollTop = scroller.scrollHeight;
     } catch (err) {
@@ -300,20 +344,31 @@ function clearConversationIfActive(conversationId, dissolved) {
     }
 }
 
+async function autoOpenFirstThread() {
+    if (didAutoOpenInitialThread) return;
+
+    const alreadyActive = threadList?.querySelector(".thread-item.active");
+    if (alreadyActive) {
+        didAutoOpenInitialThread = true;
+        return;
+    }
+
+    const firstItem = threadList?.querySelector(".thread-item");
+    if (!firstItem) return;
+
+    didAutoOpenInitialThread = true;
+    await openThread(firstItem);
+}
+
 function autoOpenFirstThreadWhenReady() {
     const maxWaitMs = 5000;
     const intervalMs = 50;
     const start = Date.now();
 
     const timer = setInterval(async () => {
-        const firstItem = threadList?.querySelector(".thread-item");
-        if (firstItem) {
+        if (threadList?.querySelector(".thread-item")) {
             clearInterval(timer);
-
-            const alreadyActive = threadList.querySelector(".thread-item.active");
-            if (alreadyActive) return;
-
-            await openThread(firstItem);
+            await autoOpenFirstThread();
             return;
         }
 

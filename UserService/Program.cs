@@ -3,12 +3,14 @@ using AuthService.Services;
 using AuthService.Services.Interfaces;
 using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
+using SharedKernel.Caching;
 
 var builder = WebApplication.CreateBuilder(args);
 LoadEnvironment(builder.Environment.ContentRootPath);
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
+builder.Services.AddSafeDistributedCache(builder.Configuration, "chatbox:userservice:");
 builder.Services.AddScoped<IUserService, AuthService.Services.UserService>();
 
 var connectionString =

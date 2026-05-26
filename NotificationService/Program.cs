@@ -3,12 +3,14 @@ using AuthService.Services;
 using AuthService.Services.Interfaces;
 using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
+using SharedKernel.Caching;
 
 var builder = WebApplication.CreateBuilder(args);
 LoadEnvironment(builder.Environment.ContentRootPath);
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
+builder.Services.AddSafeDistributedCache(builder.Configuration, "chatbox:notificationservice:");
 builder.Services.AddScoped<INotificationService, AuthService.Services.NotificationService>();
 
 var connectionString =

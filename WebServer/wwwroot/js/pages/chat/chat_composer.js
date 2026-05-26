@@ -134,6 +134,10 @@ function getActiveConversationId() {
     return active?.dataset?.id ? parseInt(active.dataset.id, 10) : null;
 }
 
+function getErrorMessage(error, fallback) {
+    return error?.response?.data?.message || error?.message || fallback;
+}
+
 async function handleSendText() {
     const conversationId = getActiveConversationId();
     if (!conversationId) {
@@ -153,7 +157,7 @@ async function handleSendText() {
         msgInput.focus();
     } catch (err) {
         console.error(err);
-        alert("Gửi tin nhắn thất bại.");
+        alert(getErrorMessage(err, "Gửi tin nhắn thất bại."));
     } finally {
         setSending(false);
     }
@@ -178,7 +182,7 @@ async function handleSendImage() {
         await reloadMessages(conversationId);
     } catch (err) {
         console.error(err);
-        alert("Gửi ảnh thất bại.");
+        alert(getErrorMessage(err, "Gửi ảnh thất bại."));
     }
 }
 
@@ -201,7 +205,13 @@ async function reloadMessages(conversationId) {
         temp.innerHTML = html;
 
         const newSection = temp.querySelector("#messageScroller");
-        scroller.innerHTML = newSection ? newSection.innerHTML : html;
+        if (newSection) {
+            scroller.dataset.conversationId = newSection.dataset.conversationId || "";
+            scroller.dataset.meId = newSection.dataset.meId || "";
+            scroller.innerHTML = newSection.innerHTML;
+        } else {
+            scroller.innerHTML = html;
+        }
 
         scroller.scrollTop = scroller.scrollHeight;
     } catch (err) {
@@ -314,6 +324,6 @@ async function handleSendAudio() {
         clearAudioPreview();
         await reloadMessages(conversationId);
     } catch (err) {
-        alert("Gửi ghi âm thất bại.");
+        alert(getErrorMessage(err, "Gửi ghi âm thất bại."));
     }
 }

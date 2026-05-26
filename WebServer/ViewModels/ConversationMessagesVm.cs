@@ -39,5 +39,39 @@ namespace WebServer.ViewModels
             public string? PeerName { get; set; }
             public string? PeerPhoto { get; set; }
         }
+
+        public class GroupCallPopupVm
+        {
+            public int ConversationId { get; set; }
+            public string CallType { get; set; } = "video";
+            public string? RoomId { get; set; }
+
+            public int MeId { get; set; }
+            public string? MeName { get; set; }
+            public string? MePhoto { get; set; }
+
+            public string GroupName { get; set; } = "";
+            public string? GroupPhoto { get; set; }
+            public List<GroupMemberDto> Members { get; set; } = new();
+        }
+
+        public class GroupIncomingCallVm
+        {
+            public int ConversationId { get; set; }
+            public string CallType { get; set; } = "video";
+            public string RoomId { get; set; } = "";
+
+            public int MeId { get; set; }
+            public string? MeName { get; set; }
+            public string? MePhoto { get; set; }
+
+            public int FromUserId { get; set; }
+            public string? FromUserName { get; set; }
+            public string? FromUserPhoto { get; set; }
+
+            public string GroupName { get; set; } = "";
+            public string? GroupPhoto { get; set; }
+            public int MemberCount { get; set; }
+        }
     }
 }
